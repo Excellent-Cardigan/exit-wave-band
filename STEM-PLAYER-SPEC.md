@@ -76,11 +76,11 @@ Use `aubio.js` or `essentia.js` to analyze the drum stem, produce a beat timesta
 | **Pixi.js** | Yes (WebGL/WebGPU) | Yes — custom GLSL filters | Medium-low | High for 2D — displacement, distortion, particle batches | Good for edge/background layer |
 | **Rive** | Yes (.riv runtime) | Yes — State Machine inputs (Trigger, Number) | Medium — requires Rive editor | Medium-high for designed/authored animation | Best for sigils, logos, animated glyphs — not generative |
 | **Canvas 2D API** | Yes | Yes | Very low | Medium — no GPU effects | Use only for waveform display on audio nodes |
-| **Jitter (Max/MSP)** | **No** | Yes (inside Max) | N/A for browser — export video/sprite atlas | Extremely high for production/live | **Production authoring tool only** — render loops, export for browser |
-| **TouchDesigner** | **No** | Yes natively | N/A for browser — same as Jitter | Extremely high — industry-standard for AV installation | **Production authoring tool only** — render, export, embed as video |
+| **jitter.video** | **No** | Yes (editor has audio sync/scrubbing) | Browser via Lottie or WebM export | High for motion design — web-based, collaborative | Authoring tool only — design beat-synced loops with audio scrubbing, export Lottie/WebM for browser |
+| **TouchDesigner** | **No** | Yes natively | N/A for browser — export video/Spout/Syphon | Extremely high — industry-standard for AV installation | **Production authoring tool only** — render, export, embed as video |
 | **Cavalry** | **No** | Yes (editor only) | Browser via Lottie export | High for motion design | Authored elements only — export Lottie/video for browser |
 
-> **Key insight:** Jitter, TouchDesigner, and Cavalry are not browser runtimes. They are production authoring tools. The workflow is: create visual loops in those tools → export as video (HAP/ProRes/WebM) or sprite atlases → embed in browser player driven by beat events.
+> **Key insight:** jitter.video, TouchDesigner, and Cavalry are not browser runtimes. They are production authoring tools. The workflow is: design/render visual loops in those tools → export as Lottie JSON, WebM, or sprite atlas → embed in browser player driven by beat events. jitter.video is the most accessible of the three — it runs in the browser and has built-in audio scrubbing to sync animations to a track before export.
 
 ### Node Graph UI
 
@@ -122,7 +122,7 @@ Use `aubio.js` or `essentia.js` to analyze the drum stem, produce a beat timesta
 | Visual node content (v1) | p5.js in instance mode (one sketch per card) |
 | Visual node content (v1.5+) | Three.js + custom ShaderMaterial / GLSL |
 | Authored animation (sigils) | Rive |
-| Production visual authoring | TouchDesigner / Jitter → export → embed |
+| Production visual authoring | jitter.video / TouchDesigner / Cavalry → export Lottie or WebM → embed |
 
 **Architecture pattern:**
 d3-force runs in a `requestAnimationFrame` loop. Positions are written to React refs (not state), applied as CSS `transform: translate()` on node cards and as Pixi.js geometry updates. React never re-renders on animation frames — only on user interactions (connect/disconnect, volume change).
@@ -240,4 +240,43 @@ Note: `layout_seed` makes initial node placement deterministic per song (same UR
 
 ---
 
+## Reference Examples
+
+### Rive — Flash Aesthetic
+
+The single most important reference for the visual direction: **2Advanced V3 Rive Rearchitecture** (2024). The original 2Advanced Studios V3 site (2001) was voted "Most Influential Website of the Decade" — the canonical Flash-era web experience. Eric Jordan rebuilt it from scratch in Rive + React (Vite), mapping every keyframe and interaction to Rive's state machine. It proves Rive is the spiritual successor to Flash and is directly aligned with Exit-Wave's aesthetic goals.
+
+- [2Advanced V3 Rive Rearchitecture — Behance case study](https://www.behance.net/gallery/230375609/2Advanced-V3-2024-Rive-Rearchitecture)
+- [Blog: "Look Ma, No Flash! 2A V3 Expansions (2024 Rive Edition)"](https://www.2advanced.blog/look-ma-no-flash-2advanced-v3-expansions/)
+- [Source .riv files — Patreon (Gold Pack)](https://www.patreon.com/2Advanced/shop/v3-expansions-2024-rive-website-source-1917013)
+- [School of Motion: "Is this the new Flash? Rive and the future of interactive design"](https://www.schoolofmotion.com/blog/rive)
+- [Rive Community Showcase](https://community.rive.app/c/showcase)
+- [Rive Marketplace](https://rive.app/marketplace/)
+- [Awesome-Rive — curated examples, tutorials, runtimes](https://github.com/rive-app/awesome-rive)
+
+### jitter.video
+
+- [jitter.video — main site & template gallery](https://jitter.video/)
+- [UI/UX animation examples](https://jitter.video/ui-ux-animations/)
+- [Instagram — best place to see output examples](https://www.instagram.com/jitter.video/)
+
+### Three.js — Beat-Reactive
+
+- [Codrops: Audio-Reactive Visuals with Dynamic Particles in Three.js](https://tympanus.net/codrops/2023/12/19/creating-audio-reactive-visuals-with-dynamic-particles-in-three-js/) — covers BPMManager, shader uniforms, GSAP — very close to this spec's architecture
+- [Codrops: 3D Audio Visualizer with Three.js, GSAP & Web Audio API](https://tympanus.net/codrops/2025/06/18/coding-a-3d-audio-visualizer-with-three-js-gsap-web-audio-api/)
+- [GitHub: r3f-music-visualizer — beat-reactive with shaders in Three.js](https://github.com/rkmiller131/r3f-music-visualizer)
+
+### p5.js — Audio Reactive
+
+- [p5-music-viz — canonical p5 + FFT audio visualization workshop (Eyeo)](https://therewasaguy.github.io/p5-music-viz/)
+- [Building a Reaction Diffusion Audio Visualizer with p5.js](https://hamy.xyz/blog/building-a-reaction-diffusion-visualizer-in-p5js) — organic/biological aesthetic relevant to Exit-Wave
+- [p5.js Web Editor — audio reactive collection](https://editor.p5js.org/austinzhangmusic/collections/HBVLL4IQ0)
+
+### General Audio Visualization
+
+- [awesome-audio-visualization — comprehensive curated list](https://github.com/willianjusten/awesome-audio-visualization)
+
+---
+
 *Spec drafted: 2026-02-25 — greenfield, pre-build*
+*Updated: 2026-02-25 — corrected jitter.video role, added reference examples*
