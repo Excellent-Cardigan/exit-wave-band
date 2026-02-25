@@ -7,15 +7,18 @@
 ## The Project
 
 **Name:** Exit-Wave
-**Genre / Vibe:** [describe the sound — e.g. post-rock, ambient, drone, hypnotic...]
-**Origin:** [where / when did this start?]
+**Genre / Vibe:** [describe the sound]
+**Origin:** Harlem, New York — 2020
 **Members:**
 
 | Name | Role | Druid Sigil / Alias |
 |------|------|---------------------|
-| | | |
-| | | |
-| | | |
+| [Your name] | Composer, Producer, Sampler | |
+| Tony | Vocals | |
+| Thom | Drums | |
+| Aaron | Composer, Producer, Modular Synth | |
+| John | Bass | |
+| Chris Danielle | Audio Engineer / Producer (Yucky Octopus Studios) | |
 
 ---
 
@@ -45,7 +48,21 @@ The Wave is not sound. The Wave is what sound leaves behind — the resonance in
 
 ### Origin Story
 
-> *[Write this in your own words. How did Exit-Wave begin? Was there a moment — a night, a sound, a vision — where it clicked into existence? Tell it like a myth.]*
+It began in 2020, in Harlem, during the great stillness.
+
+The world had stopped — or something close to it. Streets that never slept went quiet. And in that quiet, something else got loud. The walls of an apartment became the walls of a studio became the walls of a ritual chamber. There was time, suddenly, terrifyingly, to listen.
+
+Demos were built from nothing and sent into the ether — rough transmissions to Tony, the voice. He received them. He heard something in them. He sang back. That exchange, that signal passing through the locked-down city like a frequency that didn't need the streets, was the first working of the Wave.
+
+Then came the sampled world. At 7pm every night, New York did something it almost never did: it stopped and it made noise together. People leaned from windows and beat pots and shouted into the sky — a collective prayer for the nurses and doctors holding the threshold between the living and the dead. That sound was recorded. It went into the music. The neighborhood's grief and gratitude became part of the body of the work.
+
+Thom heard the transmissions and began to add drums. The drums were recorded, sent back, and then cut apart — resampled, fractured, rebuilt. The rhythm became something that had been alive and was now something else, something stranger.
+
+The circle widened slowly. Aaron arrived with his modular synth — a machine that thinks in electricity and speaks in frequencies that exist at the edge of hearing. John came with the bass, the low end, the gravitational pull that keeps the other sounds from drifting into pure abstraction.
+
+Exit-Wave was never formed. It *coalesced* — the way a storm coalesces, the way a coven finds itself, the way a frequency that has always existed finally finds its receivers.
+
+> *[Add to this. Correct anything that doesn't feel right. Make it yours.]*
 
 ---
 
@@ -53,17 +70,41 @@ The Wave is not sound. The Wave is what sound leaves behind — the resonance in
 
 > *[For each member, write a short character document. Their archetype within the group, their instrument as ritual tool, what they bring to the circle.]*
 
-### [Member 1]
+### [Your name] — Composer / Producer / Sampler
 
-- **Instrument / Role:**
+- **Instrument / Role:** Composition, production, sampling — the architect of the signal
 - **Archetype:**
-- **Lore:**
+- **Lore:** Built the first transmissions alone in Harlem during the lockdown. Recorded the city's grief and turned it into frequency. The one who listens for the Wave and tries to make it visible.
 
-### [Member 2]
+### Tony — Vocals
 
-- **Instrument / Role:**
+- **Instrument / Role:** Voice — the carrier wave, the human frequency
 - **Archetype:**
-- **Lore:**
+- **Lore:** Received the first rough drafts and heard them for what they were. His voice is the part of Exit-Wave that still sounds like it came from a body.
+
+### Thom — Drums
+
+- **Instrument / Role:** Drums — rhythm as raw material
+- **Archetype:**
+- **Lore:** Heard the transmissions and began to add percussion. The drums he sent back were then cut, resampled, and reshaped — his rhythms living on inside the music in forms he may not recognize.
+
+### Aaron — Composer / Producer / Modular Synth
+
+- **Instrument / Role:** Modular synthesizer, composition, production — frequencies at the edge of hearing
+- **Archetype:**
+- **Lore:** Arrived with a machine that thinks in electricity. The modular synth is not an instrument so much as an entity — Aaron is its interpreter.
+
+### John — Bass
+
+- **Instrument / Role:** Bass — the gravitational anchor
+- **Archetype:**
+- **Lore:** The low end that keeps everything from floating away entirely. Without John, the music might disappear into pure abstraction.
+
+### Chris Danielle — Audio Engineer / Producer (Yucky Octopus Studios)
+
+- **Instrument / Role:** Mixing, mastering, production — the one who makes the transmissions listenable
+- **Archetype:**
+- **Lore:** Not a member of the coven exactly, but present at the completion of every rite. The signal doesn't go out into the world until it passes through Chris.
 
 ---
 
@@ -161,4 +202,4 @@ Visitors should feel like they've arrived somewhere. Like they found a signal in
 
 ---
 
-*Last updated: 2026-02-24*
+*Last updated: 2026-02-24 — origin story drafted, members logged*
