@@ -13,6 +13,7 @@ The project is currently greenfield (only STORY.md exists). This spec covers con
 ### Node Types
 
 **Audio Nodes** — one per stem (drums, bass, vocals, synth, guitar, field recording, etc.)
+
 - Randomly placed on load, various sizes, labeled
 - All default-connected to the Master Output node
 - Click to disconnect/reconnect → GainNode disconnects from master, node drifts outward
@@ -20,17 +21,20 @@ The project is currently greenfield (only STORY.md exists). This spec covers con
 - Mini waveform display fed by AnalyserNode
 
 **The Master Output Node** — fixed at center, visually dominant
+
 - Cannot be removed
 - Global volume + combined level ring
 - Global play/pause control
 
 **Visual/Animation Nodes** — beat-reactive canvases
+
 - Default disconnected (dark, faint pulse)
 - Can bind to master mix OR a specific stem (e.g., connect a visual to "bass" → it reacts to bass frequencies only)
 - Resizable within the card, or expand to fullscreen (graph continues running behind, dimmed)
 - User can drag to reposition like any other node
 
 ### Physics & Feel
+
 - Force-directed layout: master output pinned at center, stems orbit it
 - Nodes drift continuously (low Brownian noise) — active stems drift more, disconnected stems drift further and slower
 - Connection edges are animated bezier curves, not straight lines — slight sag, low-frequency wobble
@@ -45,7 +49,8 @@ The project is currently greenfield (only STORY.md exists). This spec covers con
 All stems load as ArrayBuffers → decoded once → all `AudioBufferSourceNode.start()` calls fire at the same `ctx.currentTime + offset`. This is the only reliable method for sample-accurate multi-stem sync.
 
 **Audio signal chain per stem:**
-```
+
+```text
 AudioBufferSourceNode → GainNode (per-stem) → AnalyserNode (per-stem) → GainNode (master) → AnalyserNode (master) → ctx.destination
 ```
 
@@ -201,6 +206,7 @@ Note: `layout_seed` makes initial node placement deterministic per song (same UR
 ## Open Questions — Must Decide Before Build
 
 **Blocking:**
+
 1. What track are we building against first? Need real separated stems — even rough — to develop and test sync behavior.
 2. How many stems per track? (4 vs. 8 is a meaningfully different experience in the graph.)
 3. React or not? Framework decision gates all other engineering decisions.

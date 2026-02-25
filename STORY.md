@@ -204,4 +204,4 @@ Visitors should feel like they've arrived somewhere. Like they found a signal in
 
 ---
 
-*Last updated: 2026-02-24 — origin story drafted, members logged, sound and influences added*
+Last updated: 2026-02-24 — origin story drafted, members logged, sound and influences added
