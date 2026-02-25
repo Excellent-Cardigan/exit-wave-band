@@ -7,18 +7,18 @@
 ## The Project
 
 **Name:** Exit-Wave
-**Genre / Vibe:** Dance, pop, rock, hardcore, hip-hop, trip-hop, down-tempo, industrial — a collider, not a blend
-**Origin:** Harlem, New York — 2020
+**Genre / Vibe:** witch rock, dark wave, dream pop, witch house, electronic rock, industrial rock, gothic rock, post-punk
+**Origin:** Harlem, New York / Western Massachusetts — 2020
 **Influences:** Gary Numan, Radiohead, Helmet, Battles, Nine Inch Nails
 **Distribution:** [TIDAL](https://tidal.com/artist/57352243/u) · [Subvert FM](https://subvert.fm/) *(planned)*
 **Members:**
 
 | Name | Role | Circle Name |
 |------|------|-------------|
-| Robbie (Robert) | Composer, Producer, Sampler | **Purity** |
-| Tony | Vocals | |
-| Thom | Drums | |
-| Aaron | Composer, Producer, Modular Synth | |
+| Bobby D. | Composer, Producer, Sampler, Guitar | **PURITY** |
+| Tony | Vocals | **TOY** |
+| Thom | Drums | **CALM** |
+| Aaron | Composer, Producer, Modular Synth | **AER** |
 | John | Bass | |
 | Chris Danielle | Audio Engineer / Producer (Yucky Octopus Studios) | |
 
