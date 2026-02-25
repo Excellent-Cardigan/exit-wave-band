@@ -7,13 +7,15 @@
 ## The Project
 
 **Name:** Exit-Wave
-**Genre / Vibe:** [describe the sound]
+**Genre / Vibe:** Dance, pop, rock, hardcore, hip-hop, trip-hop, down-tempo, industrial — a collider, not a blend
 **Origin:** Harlem, New York — 2020
+**Influences:** Gary Numan, Radiohead, Helmet, Battles, Nine Inch Nails
+**Distribution:** [TIDAL](https://tidal.com/artist/57352243/u) · [Subvert FM](https://subvert.fm/) *(planned)*
 **Members:**
 
-| Name | Role | Druid Sigil / Alias |
-|------|------|---------------------|
-| [Your name] | Composer, Producer, Sampler | |
+| Name | Role | Circle Name |
+|------|------|-------------|
+| Robbie (Robert) | Composer, Producer, Sampler | **Purity** |
 | Tony | Vocals | |
 | Thom | Drums | |
 | Aaron | Composer, Producer, Modular Synth | |
@@ -70,40 +72,40 @@ Exit-Wave was never formed. It *coalesced* — the way a storm coalesces, the wa
 
 > *[For each member, write a short character document. Their archetype within the group, their instrument as ritual tool, what they bring to the circle.]*
 
-### [Your name] — Composer / Producer / Sampler
+### Purity (Robbie) — Composer / Producer / Sampler
 
 - **Instrument / Role:** Composition, production, sampling — the architect of the signal
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** Built the first transmissions alone in Harlem during the lockdown. Recorded the city's grief and turned it into frequency. The one who listens for the Wave and tries to make it visible.
 
 ### Tony — Vocals
 
 - **Instrument / Role:** Voice — the carrier wave, the human frequency
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** Received the first rough drafts and heard them for what they were. His voice is the part of Exit-Wave that still sounds like it came from a body.
 
 ### Thom — Drums
 
 - **Instrument / Role:** Drums — rhythm as raw material
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** Heard the transmissions and began to add percussion. The drums he sent back were then cut, resampled, and reshaped — his rhythms living on inside the music in forms he may not recognize.
 
 ### Aaron — Composer / Producer / Modular Synth
 
 - **Instrument / Role:** Modular synthesizer, composition, production — frequencies at the edge of hearing
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** Arrived with a machine that thinks in electricity. The modular synth is not an instrument so much as an entity — Aaron is its interpreter.
 
 ### John — Bass
 
 - **Instrument / Role:** Bass — the gravitational anchor
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** The low end that keeps everything from floating away entirely. Without John, the music might disappear into pure abstraction.
 
 ### Chris Danielle — Audio Engineer / Producer (Yucky Octopus Studios)
 
 - **Instrument / Role:** Mixing, mastering, production — the one who makes the transmissions listenable
-- **Archetype:**
+- **Archetype:** *[to be defined]*
 - **Lore:** Not a member of the coven exactly, but present at the completion of every rite. The signal doesn't go out into the world until it passes through Chris.
 
 ---
@@ -202,4 +204,4 @@ Visitors should feel like they've arrived somewhere. Like they found a signal in
 
 ---
 
-*Last updated: 2026-02-24 — origin story drafted, members logged*
+*Last updated: 2026-02-24 — origin story drafted, members logged, sound and influences added*
