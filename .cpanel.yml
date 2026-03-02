@@ -1,0 +1,8 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/exitrgsu/public_html/
+    - source ~/.bashrc
+    - npm install
+    - npm run build
+    - /bin/cp -R dist/. $DEPLOYPATH
