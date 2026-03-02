@@ -1,0 +1,11 @@
+/* EXIT.WAVE Typography System - Three-layer hierarchy */
+
+/* Layer 1: Korner Display - for circle names, ritual/lore moments */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@400;500;600;700&display=swap');
+
+/* Layer 2: Monospace - for UI chrome, system labels, controls */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+/* Layer 3: Insular serif - for lore text and mythological content */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&display=swap');
