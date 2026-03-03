@@ -53,7 +53,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
       const nextTrack = list[(currentIndex + 1) % list.length];
       audio.src = nextTrack.audioSrc;
       audio.load();
-      audio.play();
+      audio.play().catch(() => setIsPlaying(false));
       setCurrentTrack(nextTrack);
       setIsPlaying(true);
       setProgress(0);
@@ -90,7 +90,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     audio.pause();
     audio.src = track.audioSrc;
     audio.load();
-    audio.play();
+    audio.play().catch(() => setIsPlaying(false));
     setCurrentTrack(track);
     currentTrackRef.current = track;
     setIsPlaying(true);
@@ -108,7 +108,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
         audioRef.current?.pause();
         setIsPlaying(false);
       } else {
-        audioRef.current?.play();
+        audioRef.current?.play().catch(() => setIsPlaying(false));
         setIsPlaying(true);
       }
     } else {
