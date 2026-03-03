@@ -35,3 +35,7 @@ public/cms/site/sessions/
 public/cms/storage/
 public/cms/media/
 public/cms/content/.lock
+
+# Kirby CMS — content is panel-managed, not git-tracked
+public/cms/content/
+dist/cms/content/
