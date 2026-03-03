@@ -37,6 +37,17 @@ export default function Home() {
     };
   }, []);
 
+  // Sync play/pause state to audio element (needed for sticky player controls)
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    if (isPlaying) {
+      audio.play().catch(() => setIsPlaying(false));
+    } else {
+      audio.pause();
+    }
+  }, [isPlaying]);
+
   // Sync volume
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume / 100;
@@ -54,21 +65,14 @@ export default function Home() {
     if (!audio) return;
 
     if (currentTrack?.id === track.id) {
-      if (isPlaying) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        audio.play();
-        setIsPlaying(true);
-      }
+      setIsPlaying(prev => !prev);
     } else {
       audio.pause();
       audio.src = track.audioSrc;
       audio.load();
-      audio.play();
       setCurrentTrack(track);
-      setIsPlaying(true);
       setProgress(0);
+      setIsPlaying(true);
     }
   };
 
@@ -76,24 +80,24 @@ export default function Home() {
     if (!currentTrack || !audioRef.current) return;
     const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
     const nextTrack = tracks[(currentIndex + 1) % tracks.length];
+    audioRef.current.pause();
     audioRef.current.src = nextTrack.audioSrc;
     audioRef.current.load();
-    audioRef.current.play();
     setCurrentTrack(nextTrack);
-    setIsPlaying(true);
     setProgress(0);
+    setIsPlaying(true);
   };
 
   const handlePrevious = () => {
     if (!currentTrack || !audioRef.current) return;
     const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
     const prevTrack = tracks[(currentIndex - 1 + tracks.length) % tracks.length];
+    audioRef.current.pause();
     audioRef.current.src = prevTrack.audioSrc;
     audioRef.current.load();
-    audioRef.current.play();
     setCurrentTrack(prevTrack);
-    setIsPlaying(true);
     setProgress(0);
+    setIsPlaying(true);
   };
 
   return (

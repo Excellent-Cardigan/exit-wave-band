@@ -28,7 +28,7 @@ export default function Signal() {
     audioRef.current.src = tracks[activeIndex].audioSrc;
     audioRef.current.load();
     if (wasPlaying) {
-      audioRef.current.play();
+      audioRef.current.play().catch(() => setIsPlaying(false));
     }
   }, [activeIndex]);
 
@@ -36,7 +36,7 @@ export default function Signal() {
   useEffect(() => {
     if (!audioRef.current) return;
     if (isPlaying) {
-      audioRef.current.play();
+      audioRef.current.play().catch(() => setIsPlaying(false));
     } else {
       audioRef.current.pause();
     }
