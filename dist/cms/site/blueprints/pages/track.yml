@@ -1,0 +1,54 @@
+title: Track
+icon: music
+
+fields:
+  title:
+    label: Title
+    type: text
+    required: true
+
+  album:
+    label: Album
+    type: text
+    required: true
+
+  duration:
+    label: Duration
+    type: text
+    placeholder: "4:32"
+    required: true
+
+  audio_src:
+    label: Audio Source Path
+    type: text
+    placeholder: "/audio/moths-lament/moths-lament.mp3"
+    required: true
+
+  image_url:
+    label: Image URL
+    type: url
+
+  track_status:
+    label: Status
+    type: select
+    required: true
+    options:
+      final: Final
+      demo: Demo
+      b-side: B-Side
+
+  bpm:
+    label: BPM
+    type: number
+    min: 60
+    max: 200
+
+  stems:
+    label: Stems Available
+    type: toggle
+    text: ["No", "Yes"]
+
+  featured:
+    label: Featured Track
+    type: toggle
+    text: ["No", "Yes"]

@@ -97,7 +97,7 @@ export default function Terminal() {
       if (object === 'desk') {
         addOutput('A standard corporate desk. Lumon Industries branded. Empty.');
       } else if (object === 'keycard') {
-        addOutput('A security keycard labeled "SEVERANCE WING - AUTHORIZED PERSONNEL ONLY"');
+        addOutput('A security keycard labeled “SEVERANCE WING - AUTHORIZED PERSONNEL ONLY”');
       } else if (object === 'circle') {
         addOutput('Ritual markings in white chalk. Five points. One for each member.');
       } else if (object === 'symbols') {
@@ -105,9 +105,9 @@ export default function Terminal() {
       } else if (object === 'candle' || object === 'candles') {
         addOutput('Black candles. Still warm. Someone was here recently.');
       } else if (object === 'tape' || object === 'tapes') {
-        addOutput('Cassette tapes marked "EXIT.WAVE - DO NOT ERASE - 128 BPM"');
+        addOutput('Cassette tapes marked “EXIT.WAVE - DO NOT ERASE - 128 BPM”');
       } else {
-        addOutput(`You don't see anything special about "${object}"`);
+        addOutput(`You don’t see anything special about “${object}”`);
       }
       addOutput('');
     } else if (command.startsWith('take ')) {

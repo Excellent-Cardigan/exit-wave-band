@@ -1,0 +1,25 @@
+Title: ZERO
+
+----
+
+Circle_name: ZERO
+
+----
+
+Real_name: John
+
+----
+
+Role: Bass
+
+----
+
+Sigil: ◈
+
+----
+
+Color: #4fd1d1
+
+----
+
+Image_path: /images/members/zero-dithered-image.png

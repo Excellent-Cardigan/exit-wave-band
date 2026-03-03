@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { Menu, X } from 'lucide-react';
@@ -14,6 +14,10 @@ export default function Navigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
+
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
 
   return (
     <div className="fixed top-4 left-4 right-4 z-50">

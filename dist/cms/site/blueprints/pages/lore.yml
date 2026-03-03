@@ -1,0 +1,27 @@
+title: Lore
+icon: text
+
+fields:
+  title:
+    label: Title
+    type: text
+
+  lore_entries:
+    label: Lore Entries
+    type: structure
+    fields:
+      entry_id:
+        label: ID
+        type: number
+      text:
+        label: Text
+        type: textarea
+      hidden:
+        label: Hidden Until Scroll
+        type: toggle
+        text: ["Visible", "Hidden"]
+      revelation_order:
+        label: Revelation Order (scroll depth %)
+        type: number
+        min: 0
+        max: 100

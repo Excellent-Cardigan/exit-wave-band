@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "text": "The exit is not an ending — it is a rite of passage. A frequency. A door that only opens from one side.",
+    "hidden": false,
+    "revelationOrder": 0
+  },
+  {
+    "id": 2,
+    "text": "The Wave is not sound. The Wave is what sound leaves behind — the resonance in a room after the last note dies.",
+    "hidden": false,
+    "revelationOrder": 0
+  },
+  {
+    "id": 3,
+    "text": "Exit-Wave are space druids — but not the kind that tend sacred groves on forest moons. We are the witchier kind. The ones who were cast out, who left, who chose the void.",
+    "hidden": true,
+    "revelationOrder": 30
+  },
+  {
+    "id": 4,
+    "text": "Exit-Wave was never formed. It coalesced — the way a storm coalesces, the way a coven finds itself, the way a frequency that has always existed finally finds its receivers.",
+    "hidden": true,
+    "revelationOrder": 60
+  },
+  {
+    "id": 5,
+    "text": "like a signal in the static",
+    "hidden": true,
+    "revelationOrder": 85
+  }
+]

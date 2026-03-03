@@ -1,107 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { AlertCircle, Eye } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
-import { ImageWithFallback } from '../components/figma/ImageWithFallback';
-import { Eye } from 'lucide-react';
-
-const members = [
-  {
-    circleName: 'PURITY',
-    realName: 'Bobby D.',
-    role: 'Composer, Producer, Sampler, Guitar',
-    sigil: '◈',
-    color: '#4fd1d1',
-    image: '/images/members/purity-dithered-image.png',
-  },
-  {
-    circleName: 'TOY',
-    realName: 'Tony',
-    role: 'Vocals',
-    sigil: '◇',
-    color: '#8b7fd4',
-    image: '/images/members/toy-dithered-image.png',
-  },
-  {
-    circleName: 'CALM',
-    realName: 'Thom',
-    role: 'Drums',
-    sigil: '○',
-    color: '#c9a353',
-    image: '',
-  },
-  {
-    circleName: 'AER',
-    realName: 'Aaron',
-    role: 'Composer, Producer, Modular Synth',
-    sigil: '◊',
-    color: '#8b7fd4',
-    image: '/images/members/aer-dithered-image.png',
-  },
-  {
-    circleName: 'ZERO',
-    realName: 'John',
-    role: 'Bass',
-    sigil: '◈',
-    color: '#4fd1d1',
-    image: '/images/members/zero-dithered-image.png',
-  },
-];
-
-const loreTexts = [
-  {
-    id: 1,
-    text: "The exit is not an ending — it is a rite of passage. A frequency. A door that only opens from one side.",
-    hidden: false,
-  },
-  {
-    id: 2,
-    text: "The Wave is not sound. The Wave is what sound leaves behind — the resonance in a room after the last note dies.",
-    hidden: false,
-  },
-  {
-    id: 3,
-    text: "Exit-Wave are space druids — but not the kind that tend sacred groves on forest moons. We are the witchier kind. The ones who were cast out, who left, who chose the void.",
-    hidden: true,
-  },
-  {
-    id: 4,
-    text: "Exit-Wave was never formed. It coalesced — the way a storm coalesces, the way a coven finds itself, the way a frequency that has always existed finally finds its receivers.",
-    hidden: true,
-  },
-  {
-    id: 5,
-    text: "like a signal in the static",
-    hidden: true,
-  },
-];
+import { useKirbyData } from '../hooks/useKirbyData';
+import type { KirbyMember, KirbyLoreEntry } from '../types/kirby';
 
 export default function Coven() {
+  const { data: members, loading: membersLoading, error: membersError } = useKirbyData<KirbyMember[]>('members.json');
+  const { data: loreEntries, loading: loreLoading, error: loreError } = useKirbyData<KirbyLoreEntry[]>('lore.json');
+
+  const memberList = members ?? [];
+  const loreList = loreEntries ?? [];
+
   const [selectedMember, setSelectedMember] = useState<string | null>(null);
-  const [revealedLore, setRevealedLore] = useState<Set<number>>(new Set([1, 2]));
+  const [revealedLore, setRevealedLore] = useState<Set<number>>(new Set());
   const [scrollDepth, setScrollDepth] = useState(0);
+
+  // Once lore loads, initialise revealed set from hidden field
+  useEffect(() => {
+    if (loreList.length > 0) {
+      const initiallyVisible = new Set(
+        loreList.filter(entry => !entry.hidden).map(entry => entry.id)
+      );
+      setRevealedLore(initiallyVisible);
+    }
+  }, [loreList.length]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const element = e.currentTarget;
     const depth = (element.scrollTop / (element.scrollHeight - element.clientHeight)) * 100;
     setScrollDepth(depth);
 
-    // Reveal lore based on scroll depth
-    if (depth > 30 && !revealedLore.has(3)) {
-      setRevealedLore(prev => new Set([...prev, 3]));
-    }
-    if (depth > 60 && !revealedLore.has(4)) {
-      setRevealedLore(prev => new Set([...prev, 4]));
-    }
-    if (depth > 85 && !revealedLore.has(5)) {
-      setRevealedLore(prev => new Set([...prev, 5]));
-    }
+    // Reveal lore entries based on their revelationOrder threshold
+    loreList.forEach(entry => {
+      if (entry.hidden && depth >= entry.revelationOrder && !revealedLore.has(entry.id)) {
+        setRevealedLore(prev => new Set([...prev, entry.id]));
+      }
+    });
   };
 
   return (
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative">
       <Navigation />
-      
+
       <div className="container mx-auto px-4 sm:px-8 py-24">
         {/* Page title */}
         <motion.div
@@ -122,6 +64,21 @@ export default function Coven() {
           </div>
         </motion.div>
 
+        {/* Error state — members */}
+        {membersError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mb-8 border-2 border-[#c85a3e] bg-[#d4cbb8] p-6 flex items-center gap-3"
+          >
+            <AlertCircle className="text-[#c85a3e] shrink-0" size={18} />
+            <div>
+              <div className="text-mono text-xs text-[#c85a3e] tracking-widest mb-1">SIGNAL INTERRUPTED</div>
+              <div className="text-mono text-xs text-[#2b2820]/60">{membersError}</div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Member Grid */}
         <motion.section
           initial={{ opacity: 0 }}
@@ -130,59 +87,70 @@ export default function Coven() {
           className="mb-20"
         >
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-            {members.map((member, index) => (
-              <motion.button
-                key={member.circleName}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1, duration: 0.6 }}
-                onClick={() => setSelectedMember(selectedMember === member.circleName ? null : member.circleName)}
-                className={`group relative overflow-hidden border-2 transition-all duration-500 ${
-                  selectedMember === member.circleName
-                    ? 'border-[#3a8a7a] scale-105'
-                    : 'border-[#8b7e6a] hover:border-[#3a8a7a]'
-                }`}
-              >
-                {/* Member Image */}
-                <div className="aspect-square overflow-hidden bg-[#d4cbb8] flex items-center justify-center">
-                  {member.image ? (
-                    <img
-                      src={member.image}
-                      alt={member.circleName}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                    />
-                  ) : (
+            {membersLoading
+              ? // Skeleton placeholders
+                [1, 2, 3, 4, 5].map(skeletonIndex => (
+                  <motion.div
+                    key={skeletonIndex}
+                    animate={{ opacity: [0.4, 0.7, 0.4] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: skeletonIndex * 0.1 }}
+                    className="border-2 border-[#8b7e6a] bg-[#d4cbb8] aspect-square"
+                  />
+                ))
+              : memberList.map((member, index) => (
+                  <motion.button
+                    key={member.circleName}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 + index * 0.1, duration: 0.6 }}
+                    onClick={() => setSelectedMember(selectedMember === member.circleName ? null : member.circleName)}
+                    className={`group relative overflow-hidden border-2 transition-all duration-500 ${
+                      selectedMember === member.circleName
+                        ? 'border-[#3a8a7a] scale-105'
+                        : 'border-[#8b7e6a] hover:border-[#3a8a7a]'
+                    }`}
+                  >
+                    {/* Member Image */}
+                    <div className="aspect-square overflow-hidden bg-[#d4cbb8] flex items-center justify-center">
+                      {member.image ? (
+                        <img
+                          src={member.image}
+                          alt={member.circleName}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                      ) : (
+                        <div
+                          className="text-5xl opacity-30"
+                          style={{ color: member.color }}
+                        >
+                          {member.sigil}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Name Overlay */}
+                    <div className="absolute inset-x-0 bottom-0 bg-[#d4cbb8] border-t-2 border-[#8b7e6a] p-3">
+                      <div className="text-blackletter text-xl text-[#2b2820] leading-tight">
+                        {member.circleName}
+                      </div>
+                      <div className="text-mono text-[9px] text-[#2b2820]/50 tracking-widest">
+                        {member.realName}
+                      </div>
+                    </div>
+
+                    {/* Sigil indicator */}
                     <div
-                      className="text-5xl opacity-30"
-                      style={{ color: member.color }}
+                      className="absolute top-3 right-3 text-2xl transition-all duration-300"
+                      style={{
+                        color: selectedMember === member.circleName ? member.color : '#8b7e6a',
+                        filter: selectedMember === member.circleName ? `drop-shadow(0 0 8px ${member.color})` : 'none'
+                      }}
                     >
                       {member.sigil}
                     </div>
-                  )}
-                </div>
-
-                {/* Name Overlay */}
-                <div className="absolute inset-x-0 bottom-0 bg-[#d4cbb8] border-t-2 border-[#8b7e6a] p-3">
-                  <div className="text-blackletter text-xl text-[#2b2820] leading-tight">
-                    {member.circleName}
-                  </div>
-                  <div className="text-mono text-[9px] text-[#2b2820]/50 tracking-widest">
-                    {member.realName}
-                  </div>
-                </div>
-
-                {/* Sigil indicator */}
-                <div 
-                  className="absolute top-3 right-3 text-2xl transition-all duration-300"
-                  style={{
-                    color: selectedMember === member.circleName ? member.color : '#8b7e6a',
-                    filter: selectedMember === member.circleName ? `drop-shadow(0 0 8px ${member.color})` : 'none'
-                  }}
-                >
-                  {member.sigil}
-                </div>
-              </motion.button>
-            ))}
+                  </motion.button>
+                ))
+            }
           </div>
 
           {/* Selected Member Details */}
@@ -197,27 +165,35 @@ export default function Coven() {
                 className="overflow-hidden"
               >
                 <div className="bg-[#d4cbb8] border-2 border-[#8b7e6a] p-8">
-                  {members
+                  {memberList
                     .filter(m => m.circleName === selectedMember)
                     .map(member => (
                       <div key={member.circleName} className="grid lg:grid-cols-3 gap-8">
                         {/* Large Image */}
                         <div className="lg:col-span-1">
                           <div className="border-2 border-[#8b7e6a] overflow-hidden aspect-square">
-                            <img 
-                              src={member.image} 
-                              alt={member.circleName}
-                              className="w-full h-full object-cover"
-                            />
+                            {member.image ? (
+                              <img
+                                src={member.image}
+                                alt={member.circleName}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-[#c9bfad] flex items-center justify-center">
+                                <div className="text-8xl opacity-20" style={{ color: member.color }}>
+                                  {member.sigil}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
 
                         {/* Details */}
                         <div className="lg:col-span-2 flex flex-col justify-center">
                           <div className="mb-6">
-                            <div 
+                            <div
                               className="text-6xl mb-4"
-                              style={{ 
+                              style={{
                                 color: member.color,
                                 filter: `drop-shadow(0 0 12px ${member.color})`
                               }}
@@ -255,43 +231,62 @@ export default function Coven() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
           className="mb-20"
+          onScroll={handleScroll as unknown as React.UIEventHandler<HTMLElement>}
         >
           <h2 className="text-blackletter text-4xl text-[#3a8a7a] mb-8 text-center">
             Core Transmissions
           </h2>
-          
+
+          {/* Error state — lore */}
+          {loreError && (
+            <div className="mb-6 border-2 border-[#c85a3e] bg-[#d4cbb8] p-4 flex items-center gap-3 max-w-3xl mx-auto">
+              <AlertCircle className="text-[#c85a3e] shrink-0" size={16} />
+              <div className="text-mono text-xs text-[#c85a3e] tracking-widest">SIGNAL INTERRUPTED / {loreError}</div>
+            </div>
+          )}
+
           <div className="space-y-8 max-w-3xl mx-auto">
-            {loreTexts.map((lore) => {
-              const isRevealed = revealedLore.has(lore.id);
-              
-              return (
-                <AnimatePresence key={lore.id}>
-                  {isRevealed ? (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 1 }}
-                      className="border-l-4 border-[#3a8a7a] bg-[#d4cbb8] pl-6 py-4"
-                    >
-                      <p className="text-serif text-lg leading-relaxed text-[#2b2820]/90 italic">
-                        {lore.text}
-                      </p>
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      initial={{ opacity: 0.3 }}
-                      animate={{ opacity: 0.3 }}
-                      className="border-l-4 border-[#8b7e6a]/20 bg-[#d4cbb8]/50 pl-6 py-4"
-                    >
-                      <div className="flex items-center gap-3 text-mono text-xs text-[#2b2820]/40">
-                        <Eye size={14} />
-                        <span>TRANSMISSION LOCKED / CONTINUE TRAVERSAL</span>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              );
-            })}
+            {loreLoading
+              ? [1, 2, 3].map(skeletonIndex => (
+                  <motion.div
+                    key={skeletonIndex}
+                    animate={{ opacity: [0.4, 0.7, 0.4] }}
+                    transition={{ duration: 1.5, repeat: Infinity, delay: skeletonIndex * 0.2 }}
+                    className="h-16 bg-[#d4cbb8] border-l-4 border-[#8b7e6a]/30"
+                  />
+                ))
+              : loreList.map(lore => {
+                  const isRevealed = revealedLore.has(lore.id);
+
+                  return (
+                    <AnimatePresence key={lore.id}>
+                      {isRevealed ? (
+                        <motion.div
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 1 }}
+                          className="border-l-4 border-[#3a8a7a] bg-[#d4cbb8] pl-6 py-4"
+                        >
+                          <p className="text-serif text-lg leading-relaxed text-[#2b2820]/90 italic">
+                            {lore.text}
+                          </p>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          initial={{ opacity: 0.3 }}
+                          animate={{ opacity: 0.3 }}
+                          className="border-l-4 border-[#8b7e6a]/20 bg-[#d4cbb8]/50 pl-6 py-4"
+                        >
+                          <div className="flex items-center gap-3 text-mono text-xs text-[#2b2820]/40">
+                            <Eye size={14} />
+                            <span>TRANSMISSION LOCKED / CONTINUE TRAVERSAL</span>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  );
+                })
+            }
           </div>
         </motion.section>
 

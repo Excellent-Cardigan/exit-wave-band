@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import { Send, Mail, AlertCircle } from 'lucide-react';
+import { useContactForm } from '../hooks/useContactForm';
 
 export default function Ritual() {
   const [formData, setFormData] = useState({
@@ -10,20 +11,26 @@ export default function Ritual() {
     email: '',
     message: '',
   });
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  const { formStatus, errorMessage, submitForm } = useContactForm();
+
+  // Reset form fields after successful submission
+  useEffect(() => {
+    if (formStatus === 'sent') {
+      const resetTimer = setTimeout(() => {
+        setFormData({ name: '', email: '', message: '' });
+      }, 3000);
+      return () => clearTimeout(resetTimer);
+    }
+  }, [formStatus]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus('sending');
-
-    // Mock submission
-    setTimeout(() => {
-      setStatus('sent');
-      setTimeout(() => {
-        setStatus('idle');
-        setFormData({ name: '', email: '', message: '' });
-      }, 3000);
-    }, 1500);
+    submitForm({
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -36,7 +43,7 @@ export default function Ritual() {
   return (
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative flex flex-col">
       <Navigation />
-      
+
       <div className="flex-1 container mx-auto px-4 sm:px-8 py-24 max-w-3xl">
         {/* Page title */}
         <motion.div
@@ -82,7 +89,7 @@ export default function Ritual() {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name field */}
             <div>
-              <label 
+              <label
                 htmlFor="name"
                 className="block text-mono text-xs text-[#2b2820]/70 mb-2 tracking-wider"
               >
@@ -102,7 +109,7 @@ export default function Ritual() {
 
             {/* Email field */}
             <div>
-              <label 
+              <label
                 htmlFor="email"
                 className="block text-mono text-xs text-[#2b2820]/70 mb-2 tracking-wider"
               >
@@ -122,7 +129,7 @@ export default function Ritual() {
 
             {/* Message field */}
             <div>
-              <label 
+              <label
                 htmlFor="message"
                 className="block text-mono text-xs text-[#2b2820]/70 mb-2 tracking-wider"
               >
@@ -140,21 +147,38 @@ export default function Ritual() {
               />
             </div>
 
+            {/* Error message */}
+            {formStatus === 'error' && errorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="border-2 border-[#c85a3e] bg-[#d4cbb8] p-4 flex items-center gap-3"
+              >
+                <AlertCircle className="text-[#c85a3e] shrink-0" size={16} />
+                <div>
+                  <div className="text-mono text-xs text-[#c85a3e] tracking-widest mb-1">SIGNAL INTERRUPTED</div>
+                  <div className="text-mono text-xs text-[#2b2820]/60">{errorMessage}</div>
+                </div>
+              </motion.div>
+            )}
+
             {/* Submit button */}
             <motion.button
               type="submit"
-              disabled={status === 'sending' || status === 'sent'}
-              whileHover={{ scale: status === 'idle' ? 1.02 : 1 }}
-              whileTap={{ scale: status === 'idle' ? 0.98 : 1 }}
+              disabled={formStatus === 'sending' || formStatus === 'sent'}
+              whileHover={{ scale: formStatus === 'idle' ? 1.02 : 1 }}
+              whileTap={{ scale: formStatus === 'idle' ? 0.98 : 1 }}
               className={`w-full py-4 border-2 text-mono text-sm tracking-wider flex items-center justify-center gap-3 transition-all duration-300 ${
-                status === 'sent'
+                formStatus === 'sent'
                   ? 'border-[#3a8a7a] bg-[#3a8a7a] text-[#e8e1d3]'
-                  : status === 'sending'
+                  : formStatus === 'sending'
                   ? 'border-[#8b7e6a] bg-[#8b7e6a] text-[#e8e1d3] opacity-70'
+                  : formStatus === 'error'
+                  ? 'border-[#c85a3e] text-[#c85a3e] hover:bg-[#c85a3e] hover:text-[#e8e1d3]'
                   : 'border-[#3a8a7a] text-[#3a8a7a] hover:bg-[#3a8a7a] hover:text-[#e8e1d3]'
               }`}
             >
-              {status === 'sending' && (
+              {formStatus === 'sending' && (
                 <>
                   <motion.div
                     animate={{ rotate: 360 }}
@@ -165,13 +189,13 @@ export default function Ritual() {
                   TRANSMITTING...
                 </>
               )}
-              {status === 'sent' && (
+              {formStatus === 'sent' && (
                 <>
                   <Mail size={18} />
                   SIGNAL RECEIVED
                 </>
               )}
-              {status === 'idle' && (
+              {(formStatus === 'idle' || formStatus === 'error') && (
                 <>
                   <Send size={18} />
                   SEND TRANSMISSION
@@ -193,7 +217,7 @@ export default function Ritual() {
             <div className="text-mono text-xs text-[#2b2820]/70 mb-3 tracking-wider">
               BOOKING / PERFORMANCE RITUALS
             </div>
-            <a 
+            <a
               href="mailto:booking@exit.wave"
               className="text-mono text-sm text-[#3a8a7a] hover:text-[#2b2820] transition-all duration-300"
             >
@@ -206,7 +230,7 @@ export default function Ritual() {
             <div className="text-mono text-xs text-[#2b2820]/70 mb-3 tracking-wider">
               PRESS / MEDIA INQUIRIES
             </div>
-            <a 
+            <a
               href="mailto:press@exit.wave"
               className="text-mono text-sm text-[#3a8a7a] hover:text-[#2b2820] transition-all duration-300"
             >

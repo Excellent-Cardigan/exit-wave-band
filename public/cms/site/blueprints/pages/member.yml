@@ -1,0 +1,36 @@
+title: Member
+icon: user
+
+fields:
+  title:
+    label: Title (Circle Name)
+    type: text
+    required: true
+
+  circle_name:
+    label: Circle Name
+    type: text
+    required: true
+
+  real_name:
+    label: Real Name
+    type: text
+
+  role:
+    label: Role in the Order
+    type: text
+
+  sigil:
+    label: Sigil Character
+    type: text
+    placeholder: "◈"
+
+  color:
+    label: Accent Color (hex)
+    type: text
+    placeholder: "#4fd1d1"
+
+  image_path:
+    label: Image Path
+    type: text
+    placeholder: "/images/members/purity-dithered-image.png"

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "purity",
+    "circleName": "PURITY",
+    "realName": "Bobby D.",
+    "role": "Composer, Producer, Sampler, Guitar",
+    "sigil": "◈",
+    "color": "#4fd1d1",
+    "image": "/images/members/purity-dithered-image.png"
+  },
+  {
+    "id": "toy",
+    "circleName": "TOY",
+    "realName": "Tony",
+    "role": "Vocals",
+    "sigil": "◇",
+    "color": "#8b7fd4",
+    "image": "/images/members/toy-dithered-image.png"
+  },
+  {
+    "id": "calm",
+    "circleName": "CALM",
+    "realName": "Thom",
+    "role": "Drums",
+    "sigil": "○",
+    "color": "#c9a353",
+    "image": ""
+  },
+  {
+    "id": "aer",
+    "circleName": "AER",
+    "realName": "Aaron",
+    "role": "Composer, Producer, Modular Synth",
+    "sigil": "◊",
+    "color": "#8b7fd4",
+    "image": "/images/members/aer-dithered-image.png"
+  },
+  {
+    "id": "zero",
+    "circleName": "ZERO",
+    "realName": "John",
+    "role": "Bass",
+    "sigil": "◈",
+    "color": "#4fd1d1",
+    "image": "/images/members/zero-dithered-image.png"
+  }
+]

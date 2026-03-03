@@ -1,5 +1,11 @@
 Options -MultiViews
 RewriteEngine On
+
+# Pass all /cms requests to PHP — Kirby handles its own routing
+RewriteCond %{REQUEST_URI} ^/cms(/|$)
+RewriteRule ^ - [L]
+
+# React SPA
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]

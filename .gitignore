@@ -27,3 +27,11 @@ Thumbs.db
 
 # Claude local settings
 .claude/
+
+# Kirby CMS — runtime-only dirs (not committed)
+public/cms/site/accounts/
+public/cms/site/cache/
+public/cms/site/sessions/
+public/cms/storage/
+public/cms/media/
+public/cms/content/.lock

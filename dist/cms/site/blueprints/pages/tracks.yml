@@ -1,0 +1,9 @@
+title: Tracks
+icon: audio
+
+sections:
+  tracks:
+    type: pages
+    label: Tracks
+    template: track
+    create: track
