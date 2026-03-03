@@ -1,36 +1,48 @@
 title: Member
 icon: user
 
-fields:
-  title:
-    label: Title (Circle Name)
-    type: text
-    required: true
+tabs:
+  identity:
+    label: Identity
+    fields:
+      title:
+        label: Circle Name
+        type: text
+        required: true
 
-  circle_name:
-    label: Circle Name
-    type: text
-    required: true
+      circle_name:
+        label: Circle Name (display)
+        type: text
+        help: Ritual name (PURITY, TOY, etc.)
 
-  real_name:
-    label: Real Name
-    type: text
+      real_name:
+        label: Real Name
+        type: text
+        help: Human name shown in panel
 
-  role:
-    label: Role in the Order
-    type: text
+      role:
+        label: Role
+        type: text
+        help: Instruments and roles, comma-separated
 
-  sigil:
-    label: Sigil Character
-    type: text
-    placeholder: "◈"
+      sigil:
+        label: Sigil Character
+        type: text
+        placeholder: "◈"
+        help: Unicode character, e.g. ◈ ◇ ○ ◊
 
-  color:
-    label: Accent Color (hex)
-    type: text
-    placeholder: "#4fd1d1"
+      color:
+        label: Accent Color
+        type: text
+        placeholder: "#4fd1d1"
+        help: Hex colour for sigil glow, e.g. #4fd1d1
 
-  image_path:
-    label: Image Path
-    type: text
-    placeholder: "/images/members/purity-dithered-image.png"
+  photo:
+    label: Photo
+    sections:
+      member_photo:
+        type: files
+        template: member-photo
+        label: Portrait Photo
+        max: 1
+        layout: cards

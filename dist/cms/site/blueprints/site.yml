@@ -1,5 +1,11 @@
-title: Site
+title: exit.wave CMS
 
 sections:
-  pages:
+  content:
     type: pages
+    label: Content
+    create: false
+    templates:
+      - tracks
+      - members
+      - lore

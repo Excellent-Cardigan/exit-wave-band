@@ -1,54 +1,75 @@
 title: Track
 icon: music
 
-fields:
-  title:
-    label: Title
-    type: text
-    required: true
+tabs:
+  info:
+    label: Info
+    fields:
+      title:
+        label: Title
+        type: text
+        required: true
+        help: The track name as it appears publicly
 
-  album:
-    label: Album
-    type: text
-    required: true
+      album:
+        label: Album
+        type: text
+        help: EP or album name (e.g. Night Hymns, Demos Vol. 1)
 
-  duration:
-    label: Duration
-    type: text
-    placeholder: "4:32"
-    required: true
+      track_status:
+        label: Status
+        type: select
+        required: true
+        help: Controls the badge shown in the archive terminal
+        options:
+          final: Final
+          demo: Demo
+          b-side: B-Side
 
-  audio_src:
-    label: Audio Source Path
-    type: text
-    placeholder: "/audio/moths-lament/moths-lament.mp3"
-    required: true
+      featured:
+        label: Featured Track
+        type: toggle
+        text: ["No", "Yes"]
+        help: Hero card on the home page — only one track should be featured
 
-  image_url:
-    label: Image URL
-    type: url
+      bpm:
+        label: BPM
+        type: number
+        min: 60
+        max: 200
+        help: Beats per minute
 
-  track_status:
-    label: Status
-    type: select
-    required: true
-    options:
-      final: Final
-      demo: Demo
-      b-side: B-Side
+      duration:
+        label: Duration
+        type: text
+        placeholder: "4:32"
+        help: "Format: M:SS — enter manually"
 
-  bpm:
-    label: BPM
-    type: number
-    min: 60
-    max: 200
+      stems:
+        label: Stems Available
+        type: toggle
+        text: ["No", "Yes"]
+        help: Are stems available for remix/licensing?
 
-  stems:
-    label: Stems Available
-    type: toggle
-    text: ["No", "Yes"]
+  files:
+    label: Files
+    columns:
+      cover:
+        width: 1/2
+        sections:
+          cover_files:
+            type: files
+            template: cover
+            label: Cover Art
+            max: 1
+            layout: cards
 
-  featured:
-    label: Featured Track
-    type: toggle
-    text: ["No", "Yes"]
+      audio:
+        width: 1/2
+        sections:
+          audio_files:
+            type: files
+            template: audio
+            label: Audio File
+            max: 1
+            layout: list

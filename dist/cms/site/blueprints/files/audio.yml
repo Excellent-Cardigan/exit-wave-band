@@ -1,0 +1,7 @@
+title: Audio File
+accept:
+  - audio/mpeg
+  - audio/wav
+  - audio/ogg
+  - audio/aac
+  - audio/mp4

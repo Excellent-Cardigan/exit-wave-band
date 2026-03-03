@@ -1,0 +1,11 @@
+title: Cover Image
+accept:
+  - image/jpeg
+  - image/png
+  - image/webp
+
+fields:
+  alt:
+    label: Alt Text
+    type: text
+    help: Describe the image for screen readers
