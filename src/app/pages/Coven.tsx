@@ -7,28 +7,28 @@ import { Eye } from 'lucide-react';
 
 const members = [
   {
-    circleName: 'TOY',
-    realName: 'Tony',
-    role: 'Vocals',
-    sigil: '◇',
-    color: '#8b7fd4',
-    image: 'https://ucarecdn.com/9a8ed62f-2e51-4aef-890b-62595e5df49e/toypng.png',
-  },
-  {
     circleName: 'PURITY',
     realName: 'Bobby D.',
     role: 'Composer, Producer, Sampler, Guitar',
     sigil: '◈',
     color: '#4fd1d1',
-    image: 'https://ucarecdn.com/e3b9c50a-0077-446e-8147-e58f15fdca00/puritypng.png',
+    image: '/images/members/purity-dithered-image.png',
   },
   {
-    circleName: 'ZERO',
-    realName: 'John',
-    role: 'Bass',
-    sigil: '◈',
-    color: '#4fd1d1',
-    image: 'https://ucarecdn.com/6ecb34e4-b63b-43e2-baf4-a7784e8c2c08/zeropng.png',
+    circleName: 'TOY',
+    realName: 'Tony',
+    role: 'Vocals',
+    sigil: '◇',
+    color: '#8b7fd4',
+    image: '/images/members/toy-dithered-image.png',
+  },
+  {
+    circleName: 'CALM',
+    realName: 'Thom',
+    role: 'Drums',
+    sigil: '○',
+    color: '#c9a353',
+    image: '',
   },
   {
     circleName: 'AER',
@@ -36,7 +36,15 @@ const members = [
     role: 'Composer, Producer, Modular Synth',
     sigil: '◊',
     color: '#8b7fd4',
-    image: 'https://ucarecdn.com/5ebed0ea-9e8f-4655-9a8a-6a18a4f0c04b/aerpng.png',
+    image: '/images/members/aer-dithered-image.png',
+  },
+  {
+    circleName: 'ZERO',
+    realName: 'John',
+    role: 'Bass',
+    sigil: '◈',
+    color: '#4fd1d1',
+    image: '/images/members/zero-dithered-image.png',
   },
 ];
 
@@ -121,7 +129,7 @@ export default function Coven() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mb-20"
         >
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
             {members.map((member, index) => (
               <motion.button
                 key={member.circleName}
@@ -135,13 +143,22 @@ export default function Coven() {
                     : 'border-[#8b7e6a] hover:border-[#3a8a7a]'
                 }`}
               >
-                {/* Dithered Image */}
-                <div className="aspect-square overflow-hidden bg-[#d4cbb8]">
-                  <img 
-                    src={member.image} 
-                    alt={member.circleName}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
+                {/* Member Image */}
+                <div className="aspect-square overflow-hidden bg-[#d4cbb8] flex items-center justify-center">
+                  {member.image ? (
+                    <img
+                      src={member.image}
+                      alt={member.circleName}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div
+                      className="text-5xl opacity-30"
+                      style={{ color: member.color }}
+                    >
+                      {member.sigil}
+                    </div>
+                  )}
                 </div>
 
                 {/* Name Overlay */}

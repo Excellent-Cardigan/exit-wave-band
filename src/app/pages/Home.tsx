@@ -1,72 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router';
-import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
+import { SkipBack, SkipForward, Volume2, Play, Pause } from 'lucide-react';
 import FooterWithResistance from '../components/FooterWithResistance';
-
-const tracks = [
-  { 
-    id: 'moths-lament',
-    title: "Moth's Lament", 
-    album: "Night Hymns",
-    duration: "4:32",
-    status: "final",
-    bpm: 128,
-    stems: true,
-    image: "https://images.unsplash.com/photo-1665933595176-82ab2338afea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXJrJTIwbW90aCUyMHdpbmdzJTIwYWJzdHJhY3R8ZW58MXx8fHwxNzcyNDc0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true
-  },
-  { 
-    id: 'cemetery',
-    title: "Mounting Mountain Cemetery", 
-    album: "Severance",
-    duration: "5:47",
-    status: "final",
-    bpm: 115,
-    stems: true,
-    image: "https://images.unsplash.com/photo-1768927159325-89dfade96f96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjZW1ldGVyeSUyMG1vdW50YWluJTIwbmlnaHR8ZW58MXx8fHwxNzcyNDc0MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080"
-  },
-  { 
-    id: 'ritual-chant',
-    title: "Ritual Chant", 
-    album: "Demos Vol. 1",
-    duration: "3:21",
-    status: "demo",
-    bpm: 95,
-    stems: false,
-    image: "https://images.unsplash.com/photo-1518837695005-2083093ee35b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYW5kbGVzJTIwcml0dWFsJTIwZGFya3xlbnwxfHx8fDE3NzI1NjA4NjB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-  },
-  { 
-    id: 'severance-hymn',
-    title: "Severance Hymn", 
-    album: "Demos Vol. 1",
-    duration: "4:15",
-    status: "demo",
-    bpm: 108,
-    stems: false,
-    image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb3Jlc3QlMjBtaXN0JTIwZGFya3xlbnwxfHx8fDE3NzI1NjA4ODB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-  },
-  { 
-    id: 'void-walker',
-    title: "Void Walker", 
-    album: "Demos Vol. 1",
-    duration: "5:03",
-    status: "b-side",
-    bpm: 122,
-    stems: true,
-    image: "https://images.unsplash.com/photo-1514999037859-b486988734f1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkYXJrJTIwYWJzdHJhY3QlMjB2b2lkfGVufDF8fHx8MTc3MjU2MTEwMHww&ixlib=rb-4.1.0&q=80&w=1080"
-  },
-  { 
-    id: 'eclipse-ritual',
-    title: "Eclipse Ritual", 
-    album: "Demos Vol. 1",
-    duration: "4:48",
-    status: "demo",
-    bpm: 130,
-    stems: false,
-    image: "https://images.unsplash.com/photo-1532693322450-2cb5c511067d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlY2xpcHNlJTIwbW9vbnxlbnwxfHx8fDE3NzI1NjExMjB8MA&ixlib=rb-4.1.0&q=80&w=1080"
-  },
-];
+import TrackCard from '../components/TrackCard';
+import { tracks } from '../data/tracks';
 
 export default function Home() {
   const [scrolled, setScrolled] = useState(false);
@@ -74,43 +12,60 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(75);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const featuredTrack = tracks.find(t => t.featured) || tracks[0];
   const latestDemo = tracks.find(t => t.status === 'demo') || tracks[2];
-  const otherTracks = tracks.filter(t => t.id !== featuredTrack.id);
   const demoTracks = tracks.filter(t => t.status === 'demo' || t.status === 'b-side');
+
+  // Initialize audio element
+  useEffect(() => {
+    const audio = new Audio();
+    audioRef.current = audio;
+
+    const onEnded = () => { handleNext(); };
+    const onTimeUpdate = () => {
+      if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
+    };
+
+    audio.addEventListener('ended', onEnded);
+    audio.addEventListener('timeupdate', onTimeUpdate);
+    return () => {
+      audio.pause();
+      audio.removeEventListener('ended', onEnded);
+      audio.removeEventListener('timeupdate', onTimeUpdate);
+    };
+  }, []);
+
+  // Sync volume
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = volume / 100;
+  }, [volume]);
 
   // Handle scroll for nav state
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 600);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 600);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Simulate playback
-  useEffect(() => {
-    if (!isPlaying) return;
-
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          handleNext();
-          return 0;
-        }
-        return prev + 0.5;
-      });
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [isPlaying, currentTrack]);
-
   const handlePlayTrack = (track: typeof tracks[0]) => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
     if (currentTrack?.id === track.id) {
-      setIsPlaying(!isPlaying);
+      if (isPlaying) {
+        audio.pause();
+        setIsPlaying(false);
+      } else {
+        audio.play();
+        setIsPlaying(true);
+      }
     } else {
+      audio.pause();
+      audio.src = track.audioSrc;
+      audio.load();
+      audio.play();
       setCurrentTrack(track);
       setIsPlaying(true);
       setProgress(0);
@@ -118,18 +73,26 @@ export default function Home() {
   };
 
   const handleNext = () => {
-    if (!currentTrack) return;
+    if (!currentTrack || !audioRef.current) return;
     const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
     const nextTrack = tracks[(currentIndex + 1) % tracks.length];
+    audioRef.current.src = nextTrack.audioSrc;
+    audioRef.current.load();
+    audioRef.current.play();
     setCurrentTrack(nextTrack);
+    setIsPlaying(true);
     setProgress(0);
   };
 
   const handlePrevious = () => {
-    if (!currentTrack) return;
+    if (!currentTrack || !audioRef.current) return;
     const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
     const prevTrack = tracks[(currentIndex - 1 + tracks.length) % tracks.length];
+    audioRef.current.src = prevTrack.audioSrc;
+    audioRef.current.load();
+    audioRef.current.play();
     setCurrentTrack(prevTrack);
+    setIsPlaying(true);
     setProgress(0);
   };
 
@@ -264,72 +227,14 @@ export default function Home() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="w-full max-w-2xl"
             >
-              <div className="mtg-card-frame overflow-hidden">
-                {/* Top border */}
-                <div className="h-6 bg-[#8b7e6a]" />
-
-                {/* Track image */}
-                <div className="relative p-3 bg-[#d4cbb8]">
-                  <div className="mtg-card-inner-border relative aspect-video overflow-hidden">
-                    <img 
-                      src={featuredTrack.image} 
-                      alt={featuredTrack.title}
-                      className="w-full h-full object-cover"
-                      style={{ filter: 'sepia(0.15) contrast(1.1)' }}
-                    />
-                    
-                    {/* Play overlay */}
-                    <div className="absolute inset-0 bg-[#1a1816]/60 flex items-end justify-center pb-6">
-                      <button
-                        onClick={() => handlePlayTrack(featuredTrack)}
-                        className="w-20 h-20 border-2 border-[#3a8a7a] bg-[#e8e1d3] text-[#3a8a7a] hover:bg-[#3a8a7a] hover:text-[#e8e1d3] transition-all duration-300 flex items-center justify-center"
-                      >
-                        {isPlaying && currentTrack?.id === featuredTrack.id ? (
-                          <Pause size={32} />
-                        ) : (
-                          <Play size={32} className="ml-1" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Track info */}
-                <div className="p-6 bg-[#d4cbb8]">
-                  <div className="mb-4 pb-3 border-b-2 border-[#8b7e6a]/40">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <h2 className="text-blackletter text-3xl text-[#2b2820] mb-1 leading-tight">
-                          {featuredTrack.title}
-                        </h2>
-                        <div className="text-mono text-xs text-[#2b2820]/50 tracking-widest">
-                          {featuredTrack.album.toUpperCase()}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="text-mono text-lg text-[#c9a353] font-medium">
-                          {featuredTrack.duration}
-                        </div>
-                        <div className="text-mono text-[9px] text-[#2b2820]/40 tracking-wider">
-                          DURATION
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Attribution */}
-                  <div className="flex items-center justify-between text-mono text-xs text-[#2b2820]/40 tracking-widest">
-                    <span>◆ EXIT.WAVE</span>
-                    <span>MMXXVI</span>
-                  </div>
-                </div>
-
-                {/* Bottom border */}
-                <div className="h-4 bg-[#8b7e6a]" />
-              </div>
-
-              {/* Featured badge */}
-              
+              <TrackCard
+                title={featuredTrack.title}
+                album={featuredTrack.album}
+                duration={featuredTrack.duration}
+                image={featuredTrack.image}
+                isPlaying={isPlaying && currentTrack?.id === featuredTrack.id}
+                onPlayPause={() => handlePlayTrack(featuredTrack)}
+              />
             </motion.div>
           </div>
         </section>
