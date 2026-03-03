@@ -182,8 +182,8 @@ export default function Home() {
       <div className="flex-1">
         {/* Hero section - Featured Track with Background Cards */}
         <section className="relative py-16 px-8 overflow-hidden">
-          {/* Masonry Grid Background */}
-          <div className="absolute inset-0 -mx-32 grid grid-cols-6 gap-0">
+          {/* Masonry Grid Background — hidden on mobile */}
+          <div className="absolute inset-0 -mx-32 hidden sm:grid grid-cols-6 gap-0">
             {/* Repeat cards to fill the space */}
             {[...Array(3)].map((_, rowIndex) => (
               tracks.map((track, trackIndex) => (
@@ -220,7 +220,7 @@ export default function Home() {
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#e8e1d3] to-transparent pointer-events-none z-10" />
 
           {/* Featured Card - Center */}
-          <div className="relative z-20 container mx-auto max-w-7xl flex items-center justify-center min-h-[600px]">
+          <div className="relative z-20 container mx-auto max-w-7xl flex items-center justify-center min-h-[400px] sm:min-h-[600px]">
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -240,14 +240,14 @@ export default function Home() {
         </section>
 
         {/* Terminal Track List */}
-        <section className="py-16 px-8">
-          <div className="container mx-auto px-8 py-16">
+        <section className="py-8 sm:py-16 px-4 sm:px-8">
+          <div className="container mx-auto px-4 sm:px-8 py-8 sm:py-16">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="border-2 border-[#8b7e6a] bg-[#1a1816] p-8 text-[#4fd1d1]"
+              className="border-2 border-[#8b7e6a] bg-[#1a1816] p-4 sm:p-8 text-[#4fd1d1]"
             >
               {/* Terminal Header */}
               <div className="text-mono text-xs mb-6 pb-4 border-b border-[#4fd1d1]/30">
@@ -260,8 +260,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Table Header */}
-              <div className="text-mono text-[10px] mb-3 pb-2 border-b border-[#4fd1d1]/20 grid grid-cols-12 gap-4 text-[#4fd1d1]/60 tracking-widest">
+              {/* Table Header — desktop only */}
+              <div className="hidden sm:grid text-mono text-[10px] mb-3 pb-2 border-b border-[#4fd1d1]/20 grid-cols-12 gap-4 text-[#4fd1d1]/60 tracking-widest">
                 <div className="col-span-1">#</div>
                 <div className="col-span-4">TRACK_NAME</div>
                 <div className="col-span-2">STATUS</div>
@@ -279,38 +279,51 @@ export default function Home() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="text-mono text-xs py-3 border-b border-[#4fd1d1]/10 grid grid-cols-12 gap-4 items-center hover:bg-[#4fd1d1]/5 transition-colors"
+                    className="text-mono text-xs py-3 border-b border-[#4fd1d1]/10 hover:bg-[#4fd1d1]/5 transition-colors"
                   >
-                    <div className="col-span-1 text-[#4fd1d1]/50">
-                      {String(index + 1).padStart(2, '0')}
-                    </div>
-                    <div className="col-span-4 text-[#4fd1d1]">
-                      {track.title}
-                    </div>
-                    <div className="col-span-2">
-                      <span className={`px-2 py-0.5 border text-[9px] tracking-wider ${
-                        track.status === 'demo' 
-                          ? 'border-[#c85a3e] text-[#c85a3e]' 
-                          : track.status === 'b-side'
-                          ? 'border-[#c9a353] text-[#c9a353]'
-                          : 'border-[#3a8a7a] text-[#3a8a7a]'
-                      }`}>
-                        {track.status.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="col-span-1 text-[#4fd1d1]/70">
-                      {track.bpm}
-                    </div>
-                    <div className="col-span-2 text-[#4fd1d1]/70">
-                      {track.stems ? '✓ AVAILABLE' : '✗ N/A'}
-                    </div>
-                    <div className="col-span-2 text-right">
+                    {/* Mobile row */}
+                    <div className="flex items-center justify-between gap-2 sm:hidden">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <span className="text-[#4fd1d1]/50 shrink-0">{String(index + 1).padStart(2, '0')}</span>
+                        <span className="text-[#4fd1d1] truncate">{track.title}</span>
+                      </div>
                       <button
                         onClick={() => handlePlayTrack(track)}
-                        className="px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
+                        className="shrink-0 px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
                       >
                         {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
                       </button>
+                    </div>
+
+                    {/* Desktop row */}
+                    <div className="hidden sm:grid grid-cols-12 gap-4 items-center">
+                      <div className="col-span-1 text-[#4fd1d1]/50">
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+                      <div className="col-span-4 text-[#4fd1d1]">{track.title}</div>
+                      <div className="col-span-2">
+                        <span className={`px-2 py-0.5 border text-[9px] tracking-wider ${
+                          track.status === 'demo'
+                            ? 'border-[#c85a3e] text-[#c85a3e]'
+                            : track.status === 'b-side'
+                            ? 'border-[#c9a353] text-[#c9a353]'
+                            : 'border-[#3a8a7a] text-[#3a8a7a]'
+                        }`}>
+                          {track.status.toUpperCase()}
+                        </span>
+                      </div>
+                      <div className="col-span-1 text-[#4fd1d1]/70">{track.bpm}</div>
+                      <div className="col-span-2 text-[#4fd1d1]/70">
+                        {track.stems ? '✓ AVAILABLE' : '✗ N/A'}
+                      </div>
+                      <div className="col-span-2 text-right">
+                        <button
+                          onClick={() => handlePlayTrack(track)}
+                          className="px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
+                        >
+                          {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -336,12 +349,20 @@ export default function Home() {
             className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
             style={{ width: '90vw' }}
           >
-            <div className="border-2 border-[#8b7e6a] bg-[#d4cbb8] p-4">
-              <div className="flex items-center gap-4">
+            <div className="border-2 border-[#8b7e6a] bg-[#d4cbb8]">
+              {/* Progress bar — full width at top */}
+              <div className="h-1 bg-[#8b7e6a]/20 relative">
+                <motion.div
+                  className="absolute top-0 left-0 h-full bg-[#3a8a7a]"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+
+              <div className="p-3 sm:p-4 flex items-center gap-3">
                 {/* Thumbnail */}
-                <div className="w-16 h-16 border-2 border-[#8b7e6a] overflow-hidden flex-shrink-0">
-                  <img 
-                    src={currentTrack.image} 
+                <div className="w-10 h-10 sm:w-16 sm:h-16 border-2 border-[#8b7e6a] overflow-hidden flex-shrink-0">
+                  <img
+                    src={currentTrack.image}
                     alt={currentTrack.title}
                     className="w-full h-full object-cover"
                     style={{ filter: 'sepia(0.15) contrast(1.1)' }}
@@ -349,17 +370,17 @@ export default function Home() {
                 </div>
 
                 {/* Track Info */}
-                <div className="flex-shrink-0 w-48">
-                  <div className="text-blackletter text-sm text-[#2b2820] leading-tight">
+                <div className="flex-1 min-w-0">
+                  <div className="text-blackletter text-xs sm:text-sm text-[#2b2820] leading-tight truncate">
                     {currentTrack.title}
                   </div>
-                  <div className="text-mono text-[9px] text-[#2b2820]/50 tracking-widest">
+                  <div className="text-mono text-[9px] text-[#2b2820]/50 tracking-widest truncate">
                     {currentTrack.album.toUpperCase()}
                   </div>
                 </div>
 
                 {/* Controls */}
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                   <button
                     onClick={handlePrevious}
                     className="w-8 h-8 border border-[#8b7e6a] text-[#2b2820] hover:bg-[#8b7e6a] hover:text-[#e8e1d3] transition-all flex items-center justify-center"
@@ -380,24 +401,8 @@ export default function Home() {
                   </button>
                 </div>
 
-                {/* Scrub Bar */}
-                <div className="flex-1 flex items-center gap-3">
-                  <span className="text-mono text-[9px] text-[#2b2820]/50 tracking-wider">
-                    {Math.floor(progress / 100 * 252)}s
-                  </span>
-                  <div className="flex-1 h-2 bg-[#8b7e6a]/20 border border-[#8b7e6a]/30 relative cursor-pointer">
-                    <motion.div 
-                      className="absolute top-0 left-0 h-full bg-[#3a8a7a]"
-                      style={{ width: `${progress}%` }}
-                    />
-                  </div>
-                  <span className="text-mono text-[9px] text-[#2b2820]/50 tracking-wider">
-                    {currentTrack.duration}
-                  </span>
-                </div>
-
-                {/* Volume */}
-                <div className="flex items-center gap-2 flex-shrink-0 w-32">
+                {/* Volume — desktop only */}
+                <div className="hidden sm:flex items-center gap-2 flex-shrink-0 w-32">
                   <Volume2 size={14} className="text-[#2b2820]/60" />
                   <input
                     type="range"
@@ -405,7 +410,7 @@ export default function Home() {
                     max="100"
                     value={volume}
                     onChange={(e) => setVolume(parseInt(e.target.value))}
-                    className="flex-1 h-1 bg-[#8b7e6a]/20 appearance-none cursor-pointer"
+                    className="flex-1 h-1 appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #3a8a7a 0%, #3a8a7a ${volume}%, rgba(139, 126, 106, 0.2) ${volume}%, rgba(139, 126, 106, 0.2) 100%)`
                     }}

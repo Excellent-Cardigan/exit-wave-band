@@ -37,7 +37,7 @@ export default function Ritual() {
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative flex flex-col">
       <Navigation />
       
-      <div className="flex-1 container mx-auto px-8 py-24 max-w-3xl">
+      <div className="flex-1 container mx-auto px-4 sm:px-8 py-24 max-w-3xl">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -77,7 +77,7 @@ export default function Ritual() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="bg-[#d4cbb8] border-2 border-[#8b7e6a] p-8 mb-12"
+          className="bg-[#d4cbb8] border-2 border-[#8b7e6a] p-4 sm:p-8 mb-12"
         >
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name field */}

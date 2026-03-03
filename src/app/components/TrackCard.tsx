@@ -22,7 +22,7 @@ export default function TrackCard({
   return (
     <div className="bg-[#fafeef] flex flex-col border-2 border-[#838b6a]">
       {/* Image section */}
-      <div className="relative p-5" style={{ height: '376px' }}>
+      <div className="relative p-5 h-[260px] sm:h-[376px]">
         <div className="relative w-full h-full overflow-hidden border-2 border-[#838b6a]">
           <img
             src={image}
@@ -53,7 +53,7 @@ export default function TrackCard({
         <div className="flex flex-col gap-2 pb-4 border-b-2 border-[rgba(131,139,106,0.4)]">
           <div className="flex items-end w-full gap-2">
             <h2
-              className="flex-1 text-[#36430f] text-[32px] uppercase leading-none"
+              className="flex-1 text-[#36430f] text-[22px] sm:text-[32px] uppercase leading-none"
               style={{
                 fontFamily: "'Gilda Display', serif",
                 letterSpacing: '-1.28px',

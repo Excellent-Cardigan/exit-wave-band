@@ -102,7 +102,7 @@ export default function Coven() {
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative">
       <Navigation />
       
-      <div className="container mx-auto px-8 py-24">
+      <div className="container mx-auto px-4 sm:px-8 py-24">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

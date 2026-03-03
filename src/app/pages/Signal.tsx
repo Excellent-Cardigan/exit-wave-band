@@ -82,7 +82,7 @@ export default function Signal() {
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative">
       <Navigation />
 
-      <div className="container mx-auto px-8 py-24">
+      <div className="container mx-auto px-4 sm:px-8 py-24">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -103,7 +103,7 @@ export default function Signal() {
         {/* Stacked cards */}
         <div
           ref={containerRef}
-          className="relative flex items-start justify-center min-h-[700px] pt-8"
+          className="relative flex items-start justify-center min-h-[500px] sm:min-h-[700px] pt-8"
         >
           {tracks.map((track, index) => {
             const offset = index - activeIndex;
