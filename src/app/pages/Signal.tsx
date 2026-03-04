@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
 import { AlertCircle } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import TrackCard from '../components/TrackCard';
 import { useKirbyData } from '../hooks/useKirbyData';
+import { useAudio } from '../context/AudioContext';
 import type { KirbyTrack } from '../types/kirby';
 
 export default function Signal() {
@@ -12,40 +13,8 @@ export default function Signal() {
   const trackList = tracks ?? [];
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // Initialize audio element
-  useEffect(() => {
-    audioRef.current = new Audio();
-    audioRef.current.addEventListener('ended', () => setIsPlaying(false));
-    return () => {
-      audioRef.current?.pause();
-    };
-  }, []);
-
-  // Load new track when active index changes
-  useEffect(() => {
-    if (!audioRef.current || trackList.length === 0) return;
-    const wasPlaying = isPlaying;
-    audioRef.current.pause();
-    audioRef.current.src = trackList[activeIndex].audioSrc;
-    audioRef.current.load();
-    if (wasPlaying) {
-      audioRef.current.play();
-    }
-  }, [activeIndex, trackList.length]);
-
-  // Sync play/pause state to audio element
-  useEffect(() => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.play();
-    } else {
-      audioRef.current.pause();
-    }
-  }, [isPlaying]);
+  const { isPlaying, currentTrack, togglePlay, pause } = useAudio();
 
   // Wheel navigation between tracks
   useEffect(() => {
@@ -55,10 +24,10 @@ export default function Signal() {
         e.stopPropagation();
         if (e.deltaY > 0 && activeIndex < trackList.length - 1) {
           setActiveIndex(prev => prev + 1);
-          setIsPlaying(false);
+          pause();
         } else if (e.deltaY < 0 && activeIndex > 0) {
           setActiveIndex(prev => prev - 1);
-          setIsPlaying(false);
+          pause();
         }
       }
     };
@@ -70,24 +39,27 @@ export default function Signal() {
     return () => {
       if (container) container.removeEventListener('wheel', handleWheel);
     };
-  }, [activeIndex, trackList.length]);
+  }, [activeIndex, trackList.length, pause]);
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: { offset: { y: number } }) => {
     const swipeThreshold = 50;
     if (info.offset.y < -swipeThreshold && activeIndex < trackList.length - 1) {
       setActiveIndex(prev => prev + 1);
-      setIsPlaying(false);
+      pause();
     } else if (info.offset.y > swipeThreshold && activeIndex > 0) {
       setActiveIndex(prev => prev - 1);
-      setIsPlaying(false);
+      pause();
     }
   };
+
+  const activeTrack = trackList[activeIndex] ?? null;
+  const activeTrackIsPlaying = isPlaying && currentTrack?.id === activeTrack?.id;
 
   return (
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative">
       <Navigation />
 
-      <div className="container mx-auto px-4 sm:px-8 py-24">
+      <main className="container mx-auto px-4 sm:px-8 py-24">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -174,9 +146,10 @@ export default function Signal() {
                     album={track.album}
                     duration={track.duration}
                     image={track.image}
-                    isPlaying={isPlaying}
+                    bpm={track.bpm}
+                    isPlaying={activeTrackIsPlaying && isActive}
                     isActive={isActive}
-                    onPlayPause={() => setIsPlaying(prev => !prev)}
+                    onPlayPause={() => togglePlay(track, trackList)}
                   />
                 </motion.div>
               );
@@ -213,14 +186,14 @@ export default function Signal() {
           transition={{ delay: 1, duration: 1 }}
           className="text-center mt-16"
         >
-          <p className="text-serif text-[#2b2820]/70 text-base italic leading-relaxed max-w-2xl mx-auto">
+          <p className="text-blackletter italic text-[#2b2820]/70 text-base leading-relaxed max-w-2xl mx-auto">
             "The exit is not an ending — it is a rite of passage. A frequency. A door that only opens from one side."
           </p>
           <div className="mt-4 text-mono text-[10px] text-[#2b2820]/40 tracking-widest">
             — FROM THE SEVERANCE PROTOCOLS
           </div>
         </motion.div>
-      </div>
+      </main>
 
       <FooterWithResistance />
     </div>

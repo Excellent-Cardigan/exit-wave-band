@@ -8,7 +8,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <div className="text-blackletter text-3xl mb-4">EXIT.WAVE</div>
-            <p className="text-serif text-sm text-[#e8e1d3]/70 italic leading-relaxed">
+            <p className="text-blackletter italic text-sm text-[#e8e1d3]/70 leading-relaxed">
               A witch rock collective merging medieval heraldry with corporate occult aesthetics.
             </p>
           </div>

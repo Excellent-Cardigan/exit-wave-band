@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
-import { SkipBack, SkipForward, Volume2, Play, Pause } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import TrackCard from '../components/TrackCard';
 import { useKirbyData } from '../hooks/useKirbyData';
+import { useAudio } from '../context/AudioContext';
 import type { KirbyTrack } from '../types/kirby';
 
 const STATUS_COLORS: Record<KirbyTrack['status'], string> = {
@@ -15,108 +16,74 @@ const STATUS_COLORS: Record<KirbyTrack['status'], string> = {
 
 export default function Home() {
   const { data: tracks, loading: tracksLoading } = useKirbyData<KirbyTrack[]>('tracks.json');
+  const { currentTrack, isPlaying, togglePlay } = useAudio();
 
-  const [currentTrack, setCurrentTrack] = useState<KirbyTrack | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [volume, setVolume] = useState(75);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
 
-  const trackList = tracks ?? [];
-  const featuredTrack = trackList.find(t => t.featured) ?? trackList[0] ?? null;
-  const demoTracks = trackList.filter(t => t.status === 'demo' || t.status === 'b-side');
+  const kirbyTracks = tracks ?? [];
+  const featuredTrack = kirbyTracks.find(t => t.featured) ?? kirbyTracks[0] ?? null;
+  const demoTracks = kirbyTracks.filter(t => t.status === 'demo' || t.status === 'b-side');
+  const latestDemo = demoTracks[0] ?? null;
 
-  // Initialize audio element
+  // Scroll detection for dual-state nav
   useEffect(() => {
-    const audio = new Audio();
-    audioRef.current = audio;
-
-    const onEnded = () => { handleNext(); };
-    const onTimeUpdate = () => {
-      if (audio.duration) setProgress((audio.currentTime / audio.duration) * 100);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 600);
     };
-
-    audio.addEventListener('ended', onEnded);
-    audio.addEventListener('timeupdate', onTimeUpdate);
-    return () => {
-      audio.pause();
-      audio.removeEventListener('ended', onEnded);
-      audio.removeEventListener('timeupdate', onTimeUpdate);
-    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  // Sync volume
-  useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = volume / 100;
-  }, [volume]);
-
-  const handlePlayTrack = (track: KirbyTrack) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (currentTrack?.id === track.id) {
-      if (isPlaying) {
-        audio.pause();
-        setIsPlaying(false);
-      } else {
-        audio.play();
-        setIsPlaying(true);
-      }
-    } else {
-      audio.pause();
-      audio.src = track.audioSrc;
-      audio.load();
-      audio.play();
-      setCurrentTrack(track);
-      setIsPlaying(true);
-      setProgress(0);
-    }
-  };
-
-  const handleNext = () => {
-    if (!currentTrack || !audioRef.current) return;
-    const currentIndex = trackList.findIndex(t => t.id === currentTrack.id);
-    const nextTrack = trackList[(currentIndex + 1) % trackList.length];
-    if (!nextTrack) return;
-    audioRef.current.src = nextTrack.audioSrc;
-    audioRef.current.load();
-    audioRef.current.play();
-    setCurrentTrack(nextTrack);
-    setIsPlaying(true);
-    setProgress(0);
-  };
-
-  const handlePrevious = () => {
-    if (!currentTrack || !audioRef.current) return;
-    const currentIndex = trackList.findIndex(t => t.id === currentTrack.id);
-    const prevTrack = trackList[(currentIndex - 1 + trackList.length) % trackList.length];
-    if (!prevTrack) return;
-    audioRef.current.src = prevTrack.audioSrc;
-    audioRef.current.load();
-    audioRef.current.play();
-    setCurrentTrack(prevTrack);
-    setIsPlaying(true);
-    setProgress(0);
-  };
 
   return (
     <div className="min-h-screen bg-[#e8e1d3] flex flex-col">
-      <Navigation />
+      {/* Dual-state nav */}
+      <AnimatePresence>
+        {!scrolled && latestDemo && (
+          <motion.div
+            key="demo-pill"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50"
+          >
+            <Link
+              to="/signal"
+              className="text-mono text-xs tracking-widest border border-[#3a8a7a] bg-[#d4cbb8]/90 backdrop-blur-md text-[#3a8a7a] px-6 py-2 hover:bg-[#3a8a7a] hover:text-[#e8e1d3] transition-all whitespace-nowrap block"
+            >
+              {latestDemo.title} — NEW DEMO →
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {scrolled && (
+          <motion.div
+            key="nav"
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ duration: 0.4 }}
+          >
+            <Navigation />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <main className="flex-1">
         {/* Hero section - Featured Track with Background Cards */}
         <section className="relative py-16 px-8 overflow-hidden">
           {/* Masonry Grid Background — hidden on mobile */}
-          {!tracksLoading && trackList.length > 0 && (
+          {!tracksLoading && kirbyTracks.length > 0 && (
             <div className="absolute inset-0 -mx-32 hidden sm:grid grid-cols-6 gap-0">
               {[...Array(3)].map((_, rowIndex) => (
-                trackList.map((track, trackIndex) => (
+                kirbyTracks.map((track, trackIndex) => (
                   <motion.div
                     key={`${rowIndex}-${trackIndex}`}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 0.15, scale: 1 }}
-                    transition={{ duration: 0.8, delay: (rowIndex * trackList.length + trackIndex) * 0.05 }}
+                    transition={{ duration: 0.8, delay: (rowIndex * kirbyTracks.length + trackIndex) * 0.05 }}
                     className={`${trackIndex % 3 === 0 ? 'col-span-2' : 'col-span-1'}`}
                   >
                     <div className="mtg-card-frame overflow-hidden h-full">
@@ -128,6 +95,8 @@ export default function Home() {
                             alt={track.title}
                             className="w-full h-full object-cover"
                             style={{ filter: 'sepia(0.15) contrast(1.1)' }}
+                            loading="lazy"
+                            decoding="async"
                           />
                         </div>
                       </div>
@@ -167,8 +136,9 @@ export default function Home() {
                   album={featuredTrack.album}
                   duration={featuredTrack.duration}
                   image={featuredTrack.image}
+                  bpm={featuredTrack.bpm}
                   isPlaying={isPlaying && currentTrack?.id === featuredTrack.id}
-                  onPlayPause={() => handlePlayTrack(featuredTrack)}
+                  onPlayPause={() => togglePlay(featuredTrack, kirbyTracks)}
                 />
               </motion.div>
             ) : null}
@@ -237,7 +207,8 @@ export default function Home() {
                             <span className="text-[#4fd1d1] truncate">{track.title}</span>
                           </div>
                           <button
-                            onClick={() => handlePlayTrack(track)}
+                            onClick={() => togglePlay(track, kirbyTracks)}
+                            aria-label={isPlaying && currentTrack?.id === track.id ? 'Pause' : `Play ${track.title}`}
                             className="shrink-0 px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
                           >
                             {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
@@ -261,7 +232,8 @@ export default function Home() {
                           </div>
                           <div className="col-span-2 text-right">
                             <button
-                              onClick={() => handlePlayTrack(track)}
+                              onClick={() => togglePlay(track, kirbyTracks)}
+                              aria-label={isPlaying && currentTrack?.id === track.id ? 'Pause' : `Play ${track.title}`}
                               className="px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
                             >
                               {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
@@ -281,91 +253,7 @@ export default function Home() {
             </motion.div>
           </div>
         </section>
-      </div>
-
-      {/* Sticky Player */}
-      <AnimatePresence>
-        {currentTrack && (
-          <motion.div
-            initial={{ y: 100, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 100, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50"
-            style={{ width: '90vw' }}
-          >
-            <div className="border-2 border-[#8b7e6a] bg-[#d4cbb8]">
-              {/* Progress bar — full width at top */}
-              <div className="h-1 bg-[#8b7e6a]/20 relative">
-                <motion.div
-                  className="absolute top-0 left-0 h-full bg-[#3a8a7a]"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-
-              <div className="p-3 sm:p-4 flex items-center gap-3">
-                {/* Thumbnail */}
-                <div className="w-10 h-10 sm:w-16 sm:h-16 border-2 border-[#8b7e6a] overflow-hidden flex-shrink-0">
-                  <img
-                    src={currentTrack.image}
-                    alt={currentTrack.title}
-                    className="w-full h-full object-cover"
-                    style={{ filter: 'sepia(0.15) contrast(1.1)' }}
-                  />
-                </div>
-
-                {/* Track Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="text-blackletter text-xs sm:text-sm text-[#2b2820] leading-tight truncate">
-                    {currentTrack.title}
-                  </div>
-                  <div className="text-mono text-[9px] text-[#2b2820]/50 tracking-widest truncate">
-                    {currentTrack.album.toUpperCase()}
-                  </div>
-                </div>
-
-                {/* Controls */}
-                <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-                  <button
-                    onClick={handlePrevious}
-                    className="w-8 h-8 border border-[#8b7e6a] text-[#2b2820] hover:bg-[#8b7e6a] hover:text-[#e8e1d3] transition-all flex items-center justify-center"
-                  >
-                    <SkipBack size={14} />
-                  </button>
-                  <button
-                    onClick={() => setIsPlaying(!isPlaying)}
-                    className="w-10 h-10 border-2 border-[#3a8a7a] bg-[#3a8a7a] text-[#e8e1d3] hover:bg-transparent hover:text-[#3a8a7a] transition-all flex items-center justify-center"
-                  >
-                    {isPlaying ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
-                  </button>
-                  <button
-                    onClick={handleNext}
-                    className="w-8 h-8 border border-[#8b7e6a] text-[#2b2820] hover:bg-[#8b7e6a] hover:text-[#e8e1d3] transition-all flex items-center justify-center"
-                  >
-                    <SkipForward size={14} />
-                  </button>
-                </div>
-
-                {/* Volume — desktop only */}
-                <div className="hidden sm:flex items-center gap-2 flex-shrink-0 w-32">
-                  <Volume2 size={14} className="text-[#2b2820]/60" />
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={volume}
-                    onChange={(e) => setVolume(parseInt(e.target.value))}
-                    className="flex-1 h-1 appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, #3a8a7a 0%, #3a8a7a ${volume}%, rgba(139, 126, 106, 0.2) ${volume}%, rgba(139, 126, 106, 0.2) 100%)`
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </main>
 
       {/* Footer */}
       <FooterWithResistance />

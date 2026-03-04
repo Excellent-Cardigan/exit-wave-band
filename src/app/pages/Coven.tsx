@@ -44,7 +44,7 @@ export default function Coven() {
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative">
       <Navigation />
 
-      <div className="container mx-auto px-4 sm:px-8 py-24">
+      <main className="container mx-auto px-4 sm:px-8 py-24">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -212,7 +212,7 @@ export default function Coven() {
                             <div className="text-mono text-xs text-[#2b2820]/50 tracking-widest mb-2">
                               ROLE IN THE ORDER
                             </div>
-                            <div className="text-serif text-lg text-[#2b2820] leading-relaxed">
+                            <div className="text-blackletter italic text-lg text-[#2b2820] leading-relaxed">
                               {member.role}
                             </div>
                           </div>
@@ -267,7 +267,7 @@ export default function Coven() {
                           transition={{ duration: 1 }}
                           className="border-l-4 border-[#3a8a7a] bg-[#d4cbb8] pl-6 py-4"
                         >
-                          <p className="text-serif text-lg leading-relaxed text-[#2b2820]/90 italic">
+                          <p className="text-blackletter italic text-lg leading-relaxed text-[#2b2820]/90 italic">
                             {lore.text}
                           </p>
                         </motion.div>
@@ -333,11 +333,11 @@ export default function Coven() {
           transition={{ duration: 2 }}
           className="text-center py-20"
         >
-          <p className="text-serif text-2xl text-[#3a8a7a] italic">
+          <p className="text-blackletter italic text-2xl text-[#3a8a7a] italic">
             "We are the witchier kind."
           </p>
         </motion.div>
-      </div>
+      </main>
       <FooterWithResistance />
     </div>
   );

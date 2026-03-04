@@ -105,7 +105,7 @@ export default function Archive() {
                             transition={{ duration: 1 }}
                             className="border-l-2 border-[#8b7fd4] pl-6 py-2"
                           >
-                            <p className="text-serif text-lg leading-relaxed text-[#e8e4d9]/90 italic">
+                            <p className="text-blackletter italic text-lg leading-relaxed text-[#e8e4d9]/90 italic">
                               {lore.text}
                             </p>
                           </motion.div>
@@ -257,7 +257,7 @@ export default function Archive() {
             transition={{ duration: 2 }}
             className="text-center py-20"
           >
-            <p className="text-serif text-xl text-[#4fd1d1]/80 italic">
+            <p className="text-blackletter italic text-xl text-[#4fd1d1]/80 italic">
               "We are the witchier kind."
             </p>
           </motion.div>

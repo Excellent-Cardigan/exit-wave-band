@@ -5,6 +5,7 @@ interface TrackCardProps {
   album: string;
   duration: string;
   image: string;
+  bpm?: number;
   isPlaying?: boolean;
   isActive?: boolean;
   onPlayPause?: () => void;
@@ -15,10 +16,15 @@ export default function TrackCard({
   album,
   duration,
   image,
+  bpm,
   isPlaying = false,
   isActive = true,
   onPlayPause,
 }: TrackCardProps) {
+  const beatPulseStyle = isPlaying && bpm
+    ? { animation: `beat-pulse ${(60 / bpm).toFixed(2)}s ease-out infinite` }
+    : undefined;
+
   return (
     <div className="bg-[#fafeef] flex flex-col border-2 border-[#838b6a]">
       {/* Image section */}
@@ -35,7 +41,9 @@ export default function TrackCard({
             <div className="absolute inset-0 flex items-center justify-center">
               <button
                 onClick={onPlayPause}
+                aria-label={isPlaying ? 'Pause' : `Play ${title}`}
                 className="w-20 h-20 bg-[#c7ff1d] flex items-center justify-center hover:brightness-110 transition-all duration-200"
+                style={beatPulseStyle}
               >
                 {isPlaying ? (
                   <Pause size={32} className="text-[#36430f]" />

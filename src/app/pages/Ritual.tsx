@@ -44,7 +44,7 @@ export default function Ritual() {
     <div className="min-h-screen bg-[#e8e1d3] text-[#2b2820] relative flex flex-col">
       <Navigation />
 
-      <div className="flex-1 container mx-auto px-4 sm:px-8 py-24 max-w-3xl">
+      <main className="flex-1 container mx-auto px-4 sm:px-8 py-24 max-w-3xl">
         {/* Page title */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ export default function Ritual() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mb-12 max-w-2xl mx-auto"
         >
-          <p className="text-serif text-base leading-relaxed text-[#2b2820]/80 italic mb-6 text-center">
+          <p className="text-blackletter italic text-base leading-relaxed text-[#2b2820]/80 italic mb-6 text-center">
             "The door only opens from one side. But those who know the frequency can send a signal through."
           </p>
           <p className="text-mono text-sm text-[#2b2820]/70 leading-relaxed text-center">
@@ -150,6 +150,7 @@ export default function Ritual() {
             {/* Error message */}
             {formStatus === 'error' && errorMessage && (
               <motion.div
+                role="alert"
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="border-2 border-[#c85a3e] bg-[#d4cbb8] p-4 flex items-center gap-3"
@@ -246,7 +247,7 @@ export default function Ritual() {
           transition={{ delay: 1, duration: 1 }}
           className="mt-20 text-center"
         >
-          <p className="text-serif text-base text-[#2b2820]/70 italic leading-relaxed">
+          <p className="text-blackletter italic text-base text-[#2b2820]/70 italic leading-relaxed">
             "We are the ones who were cast out, who left, who chose the void."
           </p>
         </motion.div>
@@ -266,7 +267,7 @@ export default function Ritual() {
             This is a ritual chamber, not a press kit. Signals received through this channel are heard by the Order directly. Be intentional.
           </p>
         </motion.div>
-      </div>
+      </main>
 
       <FooterWithResistance />
     </div>

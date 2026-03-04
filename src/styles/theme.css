@@ -14,8 +14,7 @@
   
   /* Typography layers */
   --font-blackletter: 'Cormorant', serif;
-  --font-mono: 'IBM Plex Mono', 'Share Tech Mono', monospace;
-  --font-serif: 'Cinzel', serif;
+  --font-mono: 'IBM Plex Mono', monospace;
   
   /* Default system tokens */
   --background: var(--color-parchment);
@@ -140,11 +139,6 @@
   letter-spacing: 0.05em;
 }
 
-.text-serif {
-  font-family: var(--font-serif);
-  letter-spacing: 0.03em;
-}
-
 /* Typography consolidation - 3 base sizes */
 /* Base: 14px (0.875rem) - Body text, most UI */
 /* Medium: 16px (1rem) - Emphasis, subheadings */
@@ -175,4 +169,42 @@
 
 .mtg-card-inner-border {
   border: 2px solid #8b7e6a;
+}
+
+/* Focus rings — keyboard-only, preserves aesthetic for mouse users */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+}
+
+/* Reduced motion — collapse all CSS transitions for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Beat-pulse keyframe — synced to BPM via inline animationDuration */
+@keyframes beat-pulse {
+  0%   { transform: scale(1); }
+  10%  { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+/* Grain texture overlay — analog warmth without JS */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
 }
