@@ -22,7 +22,7 @@ export default function Navigation() {
   return (
     <div className="fixed top-4 left-4 right-4 z-50">
       <div className="container mx-auto">
-        <nav className="bg-[#e8e1d3]/80 backdrop-blur-md border-2 border-[#8b7e6a] px-6 py-4">
+        <nav className="bg-[#e8e1d3]/80 backdrop-blur-md border-2 border-[#8b7e6a] px-8 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/" className="text-blackletter text-xl text-[#2b2820]">
@@ -50,8 +50,9 @@ export default function Navigation() {
             </div>
 
             {/* Desktop status */}
-            <div className="hidden md:flex items-center text-mono text-xs text-[#2b2820]/60">
-              <span className="border border-[#2b2820]/60 px-2 py-0.5">ACTIVE</span>
+            <div className="hidden md:flex items-center gap-2 text-mono text-xs text-[#2b2820]/50">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#3a8a7a] animate-pulse" />
+              <span>SIGNAL ACTIVE</span>
             </div>
 
             {/* Mobile hamburger */}

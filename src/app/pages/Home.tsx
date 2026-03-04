@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router';
 import { SkipBack, SkipForward, Volume2, Play, Pause } from 'lucide-react';
+import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import TrackCard from '../components/TrackCard';
 import { useKirbyData } from '../hooks/useKirbyData';
@@ -16,7 +16,6 @@ const STATUS_COLORS: Record<KirbyTrack['status'], string> = {
 export default function Home() {
   const { data: tracks, loading: tracksLoading } = useKirbyData<KirbyTrack[]>('tracks.json');
 
-  const [scrolled, setScrolled] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<KirbyTrack | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -25,7 +24,6 @@ export default function Home() {
 
   const trackList = tracks ?? [];
   const featuredTrack = trackList.find(t => t.featured) ?? trackList[0] ?? null;
-  const latestDemo = trackList.find(t => t.status === 'demo') ?? trackList[2] ?? null;
   const demoTracks = trackList.filter(t => t.status === 'demo' || t.status === 'b-side');
 
   // Initialize audio element
@@ -51,13 +49,6 @@ export default function Home() {
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume / 100;
   }, [volume]);
-
-  // Handle scroll for nav state
-  useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 600);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handlePlayTrack = (track: KirbyTrack) => {
     const audio = audioRef.current;
@@ -110,73 +101,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#e8e1d3] flex flex-col">
-      {/* Small CTA Nav - Initial State */}
-      <AnimatePresence>
-        {!scrolled && latestDemo && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-4 left-1/2 -translate-x-1/2 z-50"
-          >
-            <Link
-              to={`/signal#${latestDemo.id}`}
-              className="flex items-center gap-3 bg-[#3d3629]/90 backdrop-blur-sm border-2 border-[#8b7e6a] px-6 py-3 hover:bg-[#3d3629] transition-all group"
-            >
-              <span className="text-mono text-[10px] text-[#c9a353] tracking-widest">
-                v0.14.0
-              </span>
-              <span className="text-mono text-xs text-[#e8e1d3] tracking-wide">
-                {latestDemo.title} — NEW DEMO
-              </span>
-              <span className="text-[#c9a353] transform group-hover:translate-x-1 transition-transform">
-                →
-              </span>
-            </Link>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Navigation - Scrolled State */}
-      <AnimatePresence>
-        {scrolled && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="fixed top-4 left-4 right-4 z-50"
-          >
-            <div className="container mx-auto">
-              <nav className="bg-[#e8e1d3]/80 backdrop-blur-md border-2 border-[#8b7e6a] px-8 py-4">
-                <div className="flex items-center justify-between">
-                  <Link to="/" className="text-blackletter text-xl text-[#2b2820]">
-                    EXIT.WAVE
-                  </Link>
-
-                  <div className="flex items-center gap-8 text-mono text-xs tracking-widest">
-                    <Link to="/signal" className="text-[#2b2820]/70 hover:text-[#3a8a7a] transition-colors">
-                      MUSIC
-                    </Link>
-                    <Link to="/coven" className="text-[#2b2820]/70 hover:text-[#3a8a7a] transition-colors">
-                      COVEN
-                    </Link>
-                    <Link to="/ritual" className="text-[#2b2820]/70 hover:text-[#3a8a7a] transition-colors">
-                      CONTACT
-                    </Link>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-mono text-xs text-[#2b2820]/50">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#3a8a7a] animate-pulse" />
-                    <span>SIGNAL ACTIVE</span>
-                  </div>
-                </div>
-              </nav>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Navigation />
 
       {/* Main Content */}
       <div className="flex-1">
