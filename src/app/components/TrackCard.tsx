@@ -63,7 +63,7 @@ export default function TrackCard({
             <h2
               className="flex-1 text-[#36430f] text-[22px] sm:text-[32px] uppercase leading-none"
               style={{
-                fontFamily: "'Gilda Display', serif",
+                fontFamily: "'ohno-fatface', serif",
                 letterSpacing: '-1.28px',
                 fontFeatureSettings: "'dlig' 1",
               }}

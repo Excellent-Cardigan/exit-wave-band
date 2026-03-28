@@ -31,8 +31,14 @@ export default function Footer() {
               >
                 The Coven
               </Link>
-              <Link 
-                to="/ritual" 
+              <Link
+                to="/dispatches"
+                className="block text-mono text-sm text-[#e8e1d3]/80 hover:text-[#3a8a7a] transition-colors"
+              >
+                Dispatches
+              </Link>
+              <Link
+                to="/ritual"
                 className="block text-mono text-sm text-[#e8e1d3]/80 hover:text-[#3a8a7a] transition-colors"
               >
                 Ritual Contact
