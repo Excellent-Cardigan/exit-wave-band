@@ -54,7 +54,7 @@ export default function IlluminatedText({
       dropCapHeight = dropCapRef.current.offsetHeight;
     }
 
-    const fontSpec = `${fontSize}px 'Gilda Display'`;
+    const fontSpec = `${fontSize}px field-gothic-wide`;
     const prepared = prepareWithSegments(bodyText, fontSpec);
 
     let cursor: LayoutCursor = { segmentIndex: 0, graphemeIndex: 0 };
@@ -124,7 +124,7 @@ export default function IlluminatedText({
         <div
           style={{
             visibility: layoutDone ? 'visible' : 'hidden',
-            fontFamily: "'Gilda Display', serif",
+            fontFamily: "'field-gothic-wide', sans-serif",
             fontSize,
             lineHeight: lineHeightMultiplier,
             color: '#e8e4d9',
@@ -163,7 +163,7 @@ export default function IlluminatedText({
           key={i}
           className="mt-6"
           style={{
-            fontFamily: "'Gilda Display', serif",
+            fontFamily: "'field-gothic-wide', sans-serif",
             fontSize,
             lineHeight: lineHeightMultiplier,
             color: '#e8e4d9',

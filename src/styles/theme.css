@@ -12,10 +12,13 @@
   --color-ritual: #1a1816;
   --color-ritual-blue: #1A1EFF;
   
-  /* Typography layers */
-  --font-blackletter: 'Cormorant', serif;
-  --font-mono: 'IBM Plex Mono', monospace;
-  --font-dropcap: 'amador', serif;
+  /* Typography — all from Adobe Fonts kit emu5gzu */
+  --font-blackletter: 'ohno-fatface', serif;         /* weight 800 — display headers, ritual moments */
+  --font-condensed: 'ohno-fatface-condensed', serif; /* weight 900 — tight display variant */
+  --font-squished: 'ohno-fatface-squished', serif;   /* weight 300 — light display variant */
+  --font-wide: 'field-gothic-wide', sans-serif;      /* weight 400 — body text, lore, labels */
+  --font-mono: 'tchig-mono', sans-serif;             /* weight 500 — UI chrome, system labels */
+  --font-dropcap: 'amador', sans-serif;              /* weight 400 — illuminated initials only */
   
   /* Default system tokens */
   --background: var(--color-parchment);
