@@ -15,6 +15,7 @@
   /* Typography layers */
   --font-blackletter: 'Cormorant', serif;
   --font-mono: 'IBM Plex Mono', monospace;
+  --font-dropcap: 'amador', serif;
   
   /* Default system tokens */
   --background: var(--color-parchment);
@@ -138,6 +139,12 @@
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
 }
+
+/* Layer 4: Drop cap initials — Amador (Adobe Fonts) — reserved exclusively for illuminated initials */
+.text-dropcap {
+  font-family: var(--font-dropcap);
+}
+
 
 /* Typography consolidation - 3 base sizes */
 /* Base: 14px (0.875rem) - Body text, most UI */
