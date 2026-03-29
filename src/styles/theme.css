@@ -1,48 +1,73 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* EXIT.WAVE Color Palette - Parchment & Corporate Occult */
-  --color-parchment: #e8e1d3;
-  --color-aged-paper: #d4cbb8;
-  --color-ink: #2b2820;
-  --color-signal: #3a8a7a;
-  --color-accent: #4a7c9e;
-  --color-warning: #c9a353;
-  --color-danger: #c85a3e;
-  --color-ritual: #1a1816;
-  --color-ritual-blue: #1A1EFF;
-  
-  /* Typography — all from Adobe Fonts kit emu5gzu */
-  --font-blackletter: 'ohno-fatface', serif;         /* weight 800 — display headers, ritual moments */
-  --font-condensed: 'ohno-fatface-condensed', serif; /* weight 900 — tight display variant */
-  --font-squished: 'ohno-fatface-squished', serif;   /* weight 300 — light display variant */
-  --font-wide: 'field-gothic-wide', sans-serif;      /* weight 400 — body text, lore, labels */
-  --font-mono: 'tchig-mono', sans-serif;             /* weight 500 — UI chrome, system labels */
-  --font-dropcap: 'amador', sans-serif;              /* weight 400 — illuminated initials only */
-  
-  /* Default system tokens */
-  --background: var(--color-parchment);
-  --foreground: var(--color-ink);
-  --card: var(--color-aged-paper);
-  --card-foreground: var(--color-ink);
-  --popover: var(--color-aged-paper);
-  --popover-foreground: var(--color-ink);
+  /* EXIT.WAVE full palette */
+  --color-ew-ship-white-01: #ffffff;
+  --color-ew-ship-white-02: #e6e6e6;
+  --color-ew-ship-white-03: #c1c1c1;
+  --color-ew-ship-white-04: #9c9c9c;
+  --color-ew-blue-01: #397eff;
+  --color-ew-blue-02: #004df1;
+  --color-ew-blue-03: #0041db;
+  --color-ew-blue-04: #0036c4;
+  --color-ew-blue-gem-01: #2f4fc1;
+  --color-ew-blue-gem-02: #1a34a4;
+  --color-ew-blue-gem-03: #00178e;
+  --color-ew-blue-gem-04: #001380;
+  --color-ew-black-gem-01: #080b3f;
+  --color-ew-black-gem-02: #060936;
+  --color-ew-black-gem-03: #03052c;
+  --color-ew-black-gem-04: #000223;
+  --color-ew-black-gem-05: #010212;
+  --color-ew-space-01: #473d3d;
+  --color-ew-space-02: #382f2f;
+  --color-ew-space-03: #2d2525;
+  --color-ew-space-04: #261e1e;
+  --color-ew-space-05: #0b0909;
+
+  /* Core brand tokens */
+  --color-void: #010313;
+  --color-signal: #004df1;
+  --color-bone: #e6e6e6;
+
+  /* Derived surface tokens */
+  --color-signal-dim: rgba(0, 77, 241, 0.2);
+  --color-signal-border: rgba(0, 77, 241, 0.5);
+  --color-signal-ghost: rgba(0, 77, 241, 0.06);
+  --color-bone-dim: rgba(230, 230, 230, 0.4);
+  --color-bone-ghost: rgba(230, 230, 230, 0.06);
+
+  /* Typography — Adobe Fonts kit emu5gzu */
+  --font-display: 'ohno-fatface', serif;
+  --font-blackletter: 'ohno-fatface', serif;
+  --font-condensed: 'field-gothic', sans-serif;
+  --font-squished: 'ohno-fatface-squished', serif;
+  --font-wide: 'field-gothic-wide', sans-serif;
+  --font-mono: 'tchig-mono', monospace;
+  --font-dropcap: 'amador', sans-serif;
+
+  /* Shadcn/Radix system tokens */
+  --background: var(--color-void);
+  --foreground: var(--color-bone);
+  --card: var(--color-bone-ghost);
+  --card-foreground: var(--color-bone);
+  --popover: var(--color-void);
+  --popover-foreground: var(--color-bone);
   --primary: var(--color-signal);
-  --primary-foreground: var(--color-parchment);
-  --secondary: var(--color-accent);
-  --secondary-foreground: var(--color-parchment);
-  --muted: rgba(58, 138, 122, 0.15);
-  --muted-foreground: rgba(43, 40, 32, 0.6);
-  --accent: var(--color-accent);
-  --accent-foreground: var(--color-parchment);
-  --destructive: var(--color-danger);
-  --destructive-foreground: var(--color-parchment);
-  --border: rgba(43, 40, 32, 0.2);
-  --input: rgba(43, 40, 32, 0.1);
+  --primary-foreground: var(--color-bone);
+  --secondary: var(--color-signal-dim);
+  --secondary-foreground: var(--color-bone);
+  --muted: var(--color-bone-ghost);
+  --muted-foreground: var(--color-bone-dim);
+  --accent: var(--color-signal);
+  --accent-foreground: var(--color-bone);
+  --destructive: #c85a3e;
+  --destructive-foreground: var(--color-bone);
+  --border: var(--color-signal-border);
+  --input: var(--color-signal-ghost);
   --ring: var(--color-signal);
   --radius: 0;
-  
-  /* Font weights */
+
   --font-weight-medium: 500;
   --font-weight-normal: 400;
 }
@@ -91,27 +116,15 @@
     font-size: 16px;
   }
 
-  /* Default typography - using monospace system layer */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-mono);
+    font-family: var(--font-condensed);
     font-weight: 500;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
   }
 
-  h1 {
-    font-size: 1.5rem;
-    line-height: 1.3;
-  }
-
-  h2 {
-    font-size: 1.25rem;
-    line-height: 1.3;
-  }
-
-  h3 {
-    font-size: 1.125rem;
-    line-height: 1.4;
-  }
+  h1 { font-size: 1.5rem; line-height: 1.2; }
+  h2 { font-size: 1.25rem; line-height: 1.2; }
+  h3 { font-size: 1.125rem; line-height: 1.3; }
 
   p {
     font-family: var(--font-mono);
@@ -132,14 +145,21 @@
   }
 }
 
-/* Custom utility classes for EXIT.WAVE */
-.text-blackletter {
-  font-family: var(--font-blackletter);
-  letter-spacing: 0.02em;
+/* Font utility classes */
+.text-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.01em;
+}
+
+.text-condensed {
+  font-family: var(--font-condensed);
+  letter-spacing: 0.04em;
 }
 
 .text-mono {
   font-family: var(--font-mono);
+  font-weight: 500;
+  font-style: normal;
   letter-spacing: 0.05em;
 }
 
@@ -148,55 +168,41 @@
   font-family: var(--font-dropcap);
 }
 
+/* Footer wordmark — full-bleed, fills viewport width at all sizes */
+.footer-wordmark {
+  font-family: 'ohno-fatface-condensed';
+  font-weight: 900;
+  font-size: 32.5cqw;
+  color: #004df1;
+  line-height: 0.9;
+  letter-spacing: -0.01em;
+  text-align: center;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+}
 
-/* Typography consolidation - 3 base sizes */
-/* Base: 14px (0.875rem) - Body text, most UI */
-/* Medium: 16px (1rem) - Emphasis, subheadings */
-/* Display: 28px (1.75rem) - Titles, blackletter headers */
-
-/* Glow effects - adjusted for parchment */
+/* Glow effects — dark contexts / signal states */
 .glow-signal {
-  text-shadow: 0 0 8px rgba(58, 138, 122, 0.4), 0 0 16px rgba(58, 138, 122, 0.2);
+  text-shadow: 0 0 8px rgba(0, 77, 241, 0.6), 0 0 16px rgba(0, 77, 241, 0.25);
 }
 
-.glow-accent {
-  text-shadow: 0 0 8px rgba(74, 124, 158, 0.4), 0 0 16px rgba(74, 124, 158, 0.2);
-}
-
-.border-glow-signal {
-  box-shadow: 0 0 12px rgba(58, 138, 122, 0.3), inset 0 0 8px rgba(58, 138, 122, 0.1);
-}
-
-.border-glow-accent {
-  box-shadow: 0 0 12px rgba(74, 124, 158, 0.3), inset 0 0 8px rgba(74, 124, 158, 0.1);
-}
-
-/* MTG Card frame effect */
-.mtg-card-frame {
-  background: #d4cbb8;
-  border: 3px solid #8b7e6a;
-}
-
-.mtg-card-inner-border {
-  border: 2px solid #8b7e6a;
-}
-
-/* Focus rings — keyboard-only, preserves aesthetic for mouse users */
+/* Focus rings */
 button:focus-visible,
 a:focus-visible {
   outline: 2px solid var(--color-signal);
   outline-offset: 2px;
 }
 
-/* Reduced motion — collapse all CSS transitions for users who prefer it */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+/* Range input thumb */
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  background: var(--color-ew-blue-01);
+}
+
+/* Dark form input placeholder */
+.dark-input::placeholder {
+  color: rgba(230, 230, 230, 0.2);
 }
 
 /* Beat-pulse keyframe — synced to BPM via inline animationDuration */
@@ -206,15 +212,26 @@ a:focus-visible {
   100% { transform: scale(1); }
 }
 
-/* Grain texture overlay — analog warmth without JS */
+/* Grain texture overlay — analog warmth */
 body::after {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.04;
+  opacity: 0.035;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 128px 128px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

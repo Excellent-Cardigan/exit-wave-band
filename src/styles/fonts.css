@@ -1,4 +1,22 @@
-/* EXIT.WAVE Typography System */
-/* All fonts loaded via Adobe Fonts (Typekit kit: emu5gzu) in index.html */
+/* EXIT.WAVE Typography System — Three-layer hierarchy
+ *
+ * Adobe Fonts kit: https://use.typekit.net/emu5gzu.css
+ *
+ * Fonts in kit:
+ *   - Field Gothic (Commercial Type) — condensed grotesque
+ *   - Ohno Fatface (OH no Type Co) — heavy display
+ *   - Tchig Mono — monospace UI
+ */
 
-/* No Google Fonts — see <link rel="stylesheet" href="https://use.typekit.net/emu5gzu.css"> */
+@import url('https://use.typekit.net/emu5gzu.css');
+
+:root {
+  /* Layer 1: Display — brand logo, large track titles, lore headers */
+  --font-display: 'ohno-fatface', serif;
+
+  /* Layer 2: Condensed — navigation, section labels, archive rows */
+  --font-condensed: 'field-gothic', sans-serif;
+
+  /* Layer 3: Mono — all UI chrome, metadata, timestamps, status labels */
+  --font-mono: 'tchig-mono', monospace;
+}

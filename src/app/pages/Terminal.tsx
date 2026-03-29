@@ -178,7 +178,7 @@ export default function Terminal() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07070d] text-[#4fd1d1] flex flex-col">
+    <div className="min-h-screen text-[#4fd1d1] flex flex-col" style={{ background: '#010313' }}>
       {/* Terminal Content */}
       <div className="flex-1 container mx-auto max-w-4xl px-8 py-16">
         {/* Terminal Header */}

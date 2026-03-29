@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
+import { Play, Pause } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import TrackCard from '../components/TrackCard';
@@ -8,34 +9,169 @@ import { useKirbyData } from '../hooks/useKirbyData';
 import { useAudio } from '../context/AudioContext';
 import type { KirbyTrack } from '../types/kirby';
 
-const STATUS_COLORS: Record<KirbyTrack['status'], string> = {
-  demo: 'border-[#c85a3e] text-[#c85a3e]',
-  'b-side': 'border-[#c9a353] text-[#c9a353]',
-  final: 'border-[#3a8a7a] text-[#3a8a7a]',
+// ---------------------------------------------------------------------------
+// Status badge styles — dark palette
+// ---------------------------------------------------------------------------
+const STATUS_BADGE_STYLES: Record<KirbyTrack['status'], { borderColor: string; color: string }> = {
+  demo:   { borderColor: 'rgba(0,77,241,0.35)', color: 'rgba(230,230,230,0.5)' },
+  'b-side': { borderColor: 'rgba(0,77,241,0.55)', color: 'rgba(0,77,241,0.85)' },
+  final:  { borderColor: '#004df1', color: '#e6e6e6' },
 };
 
+// ---------------------------------------------------------------------------
+// TrackRow — single row in the archive table
+// ---------------------------------------------------------------------------
+interface TrackRowProps {
+  track: KirbyTrack;
+  index: number;
+  isHovered: boolean;
+  onHover: (index: number | null) => void;
+  onPlay: () => void;
+  isCurrentlyPlaying: boolean;
+}
+
+function TrackRow({ track, index, isHovered, onHover, onPlay, isCurrentlyPlaying }: TrackRowProps) {
+  const badgeStyle = STATUS_BADGE_STYLES[track.status];
+
+  return (
+    <div
+      onClick={onPlay}
+      onMouseEnter={() => onHover(index)}
+      onMouseLeave={() => onHover(null)}
+      role="button"
+      tabIndex={0}
+      aria-label={isCurrentlyPlaying ? `Pause ${track.title}` : `Play ${track.title}`}
+      onKeyDown={e => e.key === 'Enter' && onPlay()}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '28px 1fr auto auto auto 32px',
+        gap: 16,
+        alignItems: 'center',
+        padding: '12px 0',
+        borderBottom: '1px solid rgba(0,77,241,0.12)',
+        cursor: 'pointer',
+        background: isHovered
+          ? 'linear-gradient(90deg, rgba(0,77,241,0.08) 0%, transparent 100%)'
+          : 'transparent',
+        transition: 'background 0.25s ease',
+      }}
+    >
+      {/* # */}
+      <span
+        className="text-mono"
+        style={{ fontSize: 11, color: 'rgba(0,77,241,0.45)', letterSpacing: '0.05em' }}
+      >
+        {String(index + 1).padStart(2, '0')}
+      </span>
+
+      {/* Track name + album */}
+      <div style={{ minWidth: 0 }}>
+        <div
+          className="text-display"
+          style={{
+            fontSize: 17,
+            fontWeight: 400,
+            color: '#e6e6e6',
+            letterSpacing: '0.01em',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}
+        >
+          {track.title}
+        </div>
+        <div
+          className="hidden sm:block text-mono"
+          style={{
+            fontSize: 10,
+            color: 'rgba(230,230,230,0.25)',
+            letterSpacing: '0.15em',
+            textTransform: 'uppercase',
+            marginTop: 3,
+          }}
+        >
+          {track.album}
+        </div>
+      </div>
+
+      {/* Status badge */}
+      <span
+        className="text-mono"
+        style={{
+          fontSize: 9,
+          letterSpacing: '0.12em',
+          padding: '2px 6px',
+          border: `1px solid ${badgeStyle.borderColor}`,
+          color: badgeStyle.color,
+          textTransform: 'uppercase',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {track.status}
+      </span>
+
+      {/* BPM — desktop only */}
+      <span
+        className="hidden sm:block text-mono"
+        style={{ fontSize: 11, color: 'rgba(230,230,230,0.2)', letterSpacing: '0.05em', textAlign: 'right' }}
+      >
+        {track.bpm}
+      </span>
+
+      {/* Duration */}
+      <span
+        className="text-mono"
+        style={{ fontSize: 11, color: 'rgba(230,230,230,0.3)', letterSpacing: '0.05em', textAlign: 'right' }}
+      >
+        {track.duration}
+      </span>
+
+      {/* Play indicator */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: isHovered || isCurrentlyPlaying ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+        }}
+      >
+        {isCurrentlyPlaying ? (
+          <Pause size={14} color="#004df1" />
+        ) : (
+          <Play size={14} color="rgba(0,77,241,0.7)" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Home page
+// ---------------------------------------------------------------------------
 export default function Home() {
   const { data: tracks, loading: tracksLoading } = useKirbyData<KirbyTrack[]>('tracks.json');
   const { currentTrack, isPlaying, togglePlay } = useAudio();
 
   const [scrolled, setScrolled] = useState(false);
+  const [hoveredTrack, setHoveredTrack] = useState<number | null>(null);
 
   const kirbyTracks = tracks ?? [];
   const featuredTrack = kirbyTracks.find(t => t.featured) ?? kirbyTracks[0] ?? null;
   const demoTracks = kirbyTracks.filter(t => t.status === 'demo' || t.status === 'b-side');
   const latestDemo = demoTracks[0] ?? null;
 
-  // Scroll detection for dual-state nav
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 600);
-    };
+    const handleScroll = () => setScrolled(window.scrollY > 600);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#e8e1d3] flex flex-col">
+    <div
+      style={{ minHeight: '100vh', background: '#010313', color: '#e6e6e6' }}
+      className="flex flex-col"
+    >
       {/* Dual-state nav */}
       <AnimatePresence>
         {!scrolled && latestDemo && (
@@ -49,7 +185,19 @@ export default function Home() {
           >
             <Link
               to="/signal"
-              className="text-mono text-xs tracking-widest border border-[#3a8a7a] bg-[#d4cbb8]/90 backdrop-blur-md text-[#3a8a7a] px-6 py-2 hover:bg-[#3a8a7a] hover:text-[#e8e1d3] transition-all whitespace-nowrap block"
+              className="text-mono"
+              style={{
+                fontSize: 12,
+                letterSpacing: '0.12em',
+                border: '1px solid #004df1',
+                background: 'rgba(1,3,19,0.92)',
+                backdropFilter: 'blur(12px)',
+                color: '#e6e6e6',
+                padding: '10px 24px',
+                whiteSpace: 'nowrap',
+                display: 'block',
+                transition: 'all 0.2s ease',
+              }}
             >
               {latestDemo.title} — NEW DEMO →
             </Link>
@@ -70,58 +218,58 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* Main Content */}
       <main className="flex-1">
-        {/* Hero section - Featured Track with Background Cards */}
+        {/* Hero — Featured Track with Background Cards */}
         <section className="relative py-16 px-8 overflow-hidden">
-          {/* Masonry Grid Background — hidden on mobile */}
+          {/* Masonry grid background — desktop only */}
           {!tracksLoading && kirbyTracks.length > 0 && (
             <div className="absolute inset-0 -mx-32 hidden sm:grid grid-cols-6 gap-0">
-              {[...Array(3)].map((_, rowIndex) => (
+              {[...Array(3)].map((_, rowIndex) =>
                 kirbyTracks.map((track, trackIndex) => (
                   <motion.div
                     key={`${rowIndex}-${trackIndex}`}
                     initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 0.15, scale: 1 }}
-                    transition={{ duration: 0.8, delay: (rowIndex * kirbyTracks.length + trackIndex) * 0.05 }}
-                    className={`${trackIndex % 3 === 0 ? 'col-span-2' : 'col-span-1'}`}
+                    animate={{ opacity: 0.05, scale: 1 }}
+                    transition={{
+                      duration: 0.8,
+                      delay: (rowIndex * kirbyTracks.length + trackIndex) * 0.05,
+                    }}
+                    className={trackIndex % 3 === 0 ? 'col-span-2' : 'col-span-1'}
                   >
-                    <div className="mtg-card-frame overflow-hidden h-full">
-                      <div className="h-4 bg-[#8b7e6a]" />
-                      <div className="p-2 bg-[#d4cbb8]">
-                        <div className="mtg-card-inner-border aspect-video overflow-hidden">
-                          <img
-                            src={track.image}
-                            alt={track.title}
-                            className="w-full h-full object-cover"
-                            style={{ filter: 'sepia(0.15) contrast(1.1)' }}
-                            loading="lazy"
-                            decoding="async"
-                          />
-                        </div>
-                      </div>
-                      <div className="p-3 bg-[#d4cbb8]">
-                        <h3 className="text-blackletter text-sm truncate">{track.title}</h3>
-                      </div>
-                      <div className="h-3 bg-[#8b7e6a]" />
+                    <div className="overflow-hidden h-full">
+                      <img
+                        src={track.image}
+                        alt={track.title}
+                        className="w-full h-full object-cover"
+                        style={{ filter: 'saturate(0.3) contrast(1.1) brightness(0.6)' }}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
                   </motion.div>
                 ))
-              ))}
+              )}
             </div>
           )}
 
-          {/* Fade overlay at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#e8e1d3] to-transparent pointer-events-none z-10" />
+          {/* Gradient fade at bottom */}
+          <div
+            className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-10"
+            style={{ background: 'linear-gradient(to top, #010313, transparent)' }}
+          />
 
-          {/* Featured Card - Center */}
+          {/* Featured card */}
           <div className="relative z-20 container mx-auto max-w-7xl flex items-center justify-center min-h-[400px] sm:min-h-[600px]">
             {tracksLoading ? (
               <div className="w-full max-w-2xl">
                 <motion.div
-                  animate={{ opacity: [0.4, 0.7, 0.4] }}
+                  animate={{ opacity: [0.2, 0.4, 0.2] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                  className="bg-[#d4cbb8] border-2 border-[#8b7e6a] aspect-[3/4]"
+                  style={{
+                    aspectRatio: '3/4',
+                    background: 'rgba(0,77,241,0.04)',
+                    border: '1px solid rgba(0,77,241,0.15)',
+                  }}
                 />
               </div>
             ) : featuredTrack ? (
@@ -145,7 +293,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Terminal Track List */}
+        {/* Demo Archive — TrackRow table */}
         <section className="py-8 sm:py-16 px-4 sm:px-8">
           <div className="container mx-auto px-4 sm:px-8 py-8 sm:py-16">
             <motion.div
@@ -153,101 +301,111 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="border-2 border-[#8b7e6a] bg-[#1a1816] p-4 sm:p-8 text-[#4fd1d1]"
             >
-              {/* Terminal Header */}
-              <div className="text-mono text-xs mb-6 pb-4 border-b border-[#4fd1d1]/30">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[#4fd1d1]/70">EXIT.WAVE DEMO ARCHIVE</span>
-                  <span className="text-[#4fd1d1]/50">v0.14.0</span>
-                </div>
-                <div className="text-[10px] text-[#4fd1d1]/50">
-                  {tracksLoading ? 'LOADING...' : `${demoTracks.length} ENTRIES FOUND`}
-                </div>
+              {/* Section header */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <div style={{ flex: 1, height: 1, background: 'rgba(0,77,241,0.2)' }} />
+                <span
+                  className="text-mono"
+                  style={{ fontSize: 10, letterSpacing: '0.25em', color: 'rgba(0,77,241,0.6)', textTransform: 'uppercase' }}
+                >
+                  DEMO ARCHIVE
+                </span>
+                <div style={{ flex: 1, height: 1, background: 'rgba(0,77,241,0.2)' }} />
               </div>
 
+              {/* Entry count + version */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 24 }}>
+                <span
+                  className="text-mono"
+                  style={{ fontSize: 10, color: 'rgba(230,230,230,0.2)', letterSpacing: '0.1em' }}
+                >
+                  {tracksLoading ? 'LOADING...' : `${kirbyTracks.length} ENTRIES FOUND`}
+                </span>
+                <span
+                  className="text-mono"
+                  style={{ fontSize: 10, color: 'rgba(230,230,230,0.12)', letterSpacing: '0.1em' }}
+                >
+                  v0.15.0
+                </span>
+              </div>
+
+              {/* Column headers — desktop only */}
+              <div
+                className="hidden sm:grid"
+                style={{
+                  gridTemplateColumns: '28px 1fr auto auto auto 32px',
+                  gap: 16,
+                  paddingBottom: 10,
+                  borderBottom: '1px solid rgba(0,77,241,0.15)',
+                  marginBottom: 4,
+                }}
+              >
+                {['#', 'TRACK_NAME', 'STATUS', 'BPM', 'TIME', ''].map((label, i) => (
+                  <span
+                    key={i}
+                    className="text-mono"
+                    style={{
+                      fontSize: 9,
+                      color: 'rgba(230,230,230,0.15)',
+                      letterSpacing: '0.15em',
+                      textAlign: i >= 3 ? 'right' : 'left',
+                    }}
+                  >
+                    {label}
+                  </span>
+                ))}
+              </div>
+
+              {/* Track rows */}
               {tracksLoading ? (
-                <div className="space-y-3">
-                  {[1, 2].map(skeletonIndex => (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingTop: 8 }}>
+                  {[1, 2, 3].map(skeletonIndex => (
                     <motion.div
                       key={skeletonIndex}
-                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      animate={{ opacity: [0.15, 0.3, 0.15] }}
                       transition={{ duration: 1.5, repeat: Infinity, delay: skeletonIndex * 0.2 }}
-                      className="h-8 bg-[#4fd1d1]/10 border border-[#4fd1d1]/10"
+                      style={{
+                        height: 48,
+                        background: 'rgba(0,77,241,0.04)',
+                        border: '1px solid rgba(0,77,241,0.08)',
+                      }}
                     />
                   ))}
                 </div>
               ) : (
-                <>
-                  {/* Table Header — desktop only */}
-                  <div className="hidden sm:grid text-mono text-[10px] mb-3 pb-2 border-b border-[#4fd1d1]/20 grid-cols-12 gap-4 text-[#4fd1d1]/60 tracking-widest">
-                    <div className="col-span-1">#</div>
-                    <div className="col-span-4">TRACK_NAME</div>
-                    <div className="col-span-2">STATUS</div>
-                    <div className="col-span-1">BPM</div>
-                    <div className="col-span-2">STEMS</div>
-                    <div className="col-span-2 text-right">ACTION</div>
-                  </div>
-
-                  {/* Track Rows */}
-                  <div className="space-y-1">
-                    {demoTracks.map((track, index) => (
-                      <motion.div
-                        key={track.id}
-                        initial={{ opacity: 0, x: -20 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
-                        className="text-mono text-xs py-3 border-b border-[#4fd1d1]/10 hover:bg-[#4fd1d1]/5 transition-colors"
-                      >
-                        {/* Mobile row */}
-                        <div className="flex items-center justify-between gap-2 sm:hidden">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className="text-[#4fd1d1]/50 shrink-0">{String(index + 1).padStart(2, '0')}</span>
-                            <span className="text-[#4fd1d1] truncate">{track.title}</span>
-                          </div>
-                          <button
-                            onClick={() => togglePlay(track, kirbyTracks)}
-                            aria-label={isPlaying && currentTrack?.id === track.id ? 'Pause' : `Play ${track.title}`}
-                            className="shrink-0 px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
-                          >
-                            {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
-                          </button>
-                        </div>
-
-                        {/* Desktop row */}
-                        <div className="hidden sm:grid grid-cols-12 gap-4 items-center">
-                          <div className="col-span-1 text-[#4fd1d1]/50">
-                            {String(index + 1).padStart(2, '0')}
-                          </div>
-                          <div className="col-span-4 text-[#4fd1d1]">{track.title}</div>
-                          <div className="col-span-2">
-                            <span className={`px-2 py-0.5 border text-[9px] tracking-wider ${STATUS_COLORS[track.status]}`}>
-                              {track.status.toUpperCase()}
-                            </span>
-                          </div>
-                          <div className="col-span-1 text-[#4fd1d1]/70">{track.bpm}</div>
-                          <div className="col-span-2 text-[#4fd1d1]/70">
-                            {track.stems ? '✓ AVAILABLE' : '✗ N/A'}
-                          </div>
-                          <div className="col-span-2 text-right">
-                            <button
-                              onClick={() => togglePlay(track, kirbyTracks)}
-                              aria-label={isPlaying && currentTrack?.id === track.id ? 'Pause' : `Play ${track.title}`}
-                              className="px-3 py-1 border border-[#4fd1d1] text-[#4fd1d1] hover:bg-[#4fd1d1] hover:text-[#1a1816] transition-all text-[10px] tracking-widest"
-                            >
-                              {isPlaying && currentTrack?.id === track.id ? 'PAUSE' : 'PLAY'}
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </>
+                kirbyTracks.map((track, index) => (
+                  <motion.div
+                    key={track.id}
+                    initial={{ opacity: 0, x: -16 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: index * 0.07 }}
+                  >
+                    <TrackRow
+                      track={track}
+                      index={index}
+                      isHovered={hoveredTrack === index}
+                      onHover={setHoveredTrack}
+                      onPlay={() => togglePlay(track, kirbyTracks)}
+                      isCurrentlyPlaying={isPlaying && currentTrack?.id === track.id}
+                    />
+                  </motion.div>
+                ))
               )}
 
-              {/* Terminal Footer */}
-              <div className="text-mono text-[9px] text-[#4fd1d1]/40 mt-6 pt-4 border-t border-[#4fd1d1]/20">
+              {/* Archive footer */}
+              <div
+                className="text-mono"
+                style={{
+                  marginTop: 24,
+                  paddingTop: 16,
+                  borderTop: '1px solid rgba(0,77,241,0.08)',
+                  fontSize: 9,
+                  color: 'rgba(0,77,241,0.3)',
+                  letterSpacing: '0.1em',
+                }}
+              >
                 <span className="animate-pulse">█</span> END_OF_TRANSMISSION
               </div>
             </motion.div>
@@ -255,7 +413,6 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
       <FooterWithResistance />
     </div>
   );

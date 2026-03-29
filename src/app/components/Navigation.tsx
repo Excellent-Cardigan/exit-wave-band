@@ -23,10 +23,21 @@ export default function Navigation() {
   return (
     <div className="fixed top-4 left-4 right-4 z-50">
       <div className="container mx-auto">
-        <nav className="bg-[#e8e1d3]/80 backdrop-blur-md border-2 border-[#8b7e6a] px-8 py-4">
+        <nav
+          style={{
+            background: 'rgba(1,3,19,0.92)',
+            backdropFilter: 'blur(16px)',
+            borderBottom: '1px solid rgba(0,77,241,0.35)',
+            padding: '16px 32px',
+          }}
+        >
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="text-blackletter text-xl text-[#2b2820]">
+            <Link
+              to="/"
+              className="text-display text-xl"
+              style={{ color: '#e6e6e6' }}
+            >
               EXIT.WAVE
             </Link>
 
@@ -36,29 +47,29 @@ export default function Navigation() {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`transition-colors group flex items-center gap-1.5 ${
-                    isActive(link.to) ? 'text-[#3a8a7a]' : 'text-[#2b2820]/80 hover:text-[#3a8a7a]'
-                  }`}
+                  className="transition-colors group flex items-center gap-1.5"
+                  style={{
+                    color: isActive(link.to) ? '#e6e6e6' : 'rgba(230,230,230,0.45)',
+                  }}
                 >
-                  <span className={`transition-opacity ${
-                    isActive(link.to) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                  }`}>
-                    {isActive(link.to) ? '◆' : '•'}
+                  <span
+                    style={{
+                      color: '#004df1',
+                      opacity: isActive(link.to) ? 1 : 0,
+                      transition: 'opacity 0.2s ease',
+                    }}
+                  >
+                    ◆
                   </span>
                   {link.label}
                 </Link>
               ))}
             </div>
 
-            {/* Desktop status */}
-            <div className="hidden md:flex items-center gap-2 text-mono text-xs text-[#2b2820]/50">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#3a8a7a] animate-pulse" />
-              <span>SIGNAL ACTIVE</span>
-            </div>
-
             {/* Mobile hamburger */}
             <button
-              className="md:hidden text-[#2b2820] p-1"
+              className="md:hidden p-1"
+              style={{ color: '#e6e6e6', background: 'none', border: 'none', cursor: 'pointer' }}
               onClick={() => setMobileOpen(prev => !prev)}
               aria-label="Toggle menu"
             >
@@ -76,17 +87,26 @@ export default function Navigation() {
                 transition={{ duration: 0.25 }}
                 className="md:hidden overflow-hidden"
               >
-                <div className="flex flex-col gap-4 pt-4 mt-4 border-t border-[#8b7e6a]/40">
+                <div
+                  className="flex flex-col gap-4 pt-4 mt-4"
+                  style={{ borderTop: '1px solid rgba(0,77,241,0.2)' }}
+                >
                   {navLinks.map(link => (
                     <Link
                       key={link.to}
                       to={link.to}
                       onClick={() => setMobileOpen(false)}
-                      className={`text-mono text-xs tracking-widest transition-colors ${
-                        isActive(link.to) ? 'text-[#3a8a7a]' : 'text-[#2b2820]/80'
-                      }`}
+                      className="text-mono text-xs tracking-widest transition-colors"
+                      style={{
+                        color: isActive(link.to) ? '#e6e6e6' : 'rgba(230,230,230,0.45)',
+                      }}
                     >
-                      {isActive(link.to) ? '◆ ' : '— '}{link.label}
+                      {isActive(link.to) ? (
+                        <span style={{ color: '#004df1' }}>◆ </span>
+                      ) : (
+                        '— '
+                      )}
+                      {link.label}
                     </Link>
                   ))}
                 </div>

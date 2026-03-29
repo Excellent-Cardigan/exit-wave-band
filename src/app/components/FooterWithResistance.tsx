@@ -83,10 +83,10 @@ export default function FooterWithResistance() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed bottom-0 left-0 right-0 h-2 bg-[#3a8a7a]/20 z-50 pointer-events-none"
+              className="fixed bottom-0 left-0 right-0 h-2 bg-[#004df1]/20 z-50 pointer-events-none"
             >
               <motion.div
-                className="h-full bg-[#3a8a7a]"
+                className="h-full bg-[#004df1]"
                 style={{ width: `${scrollResistance}%` }}
                 transition={{ type: 'spring', damping: 20 }}
               />
