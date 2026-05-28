@@ -1,0 +1,9 @@
+title: Albums
+icon: records
+
+sections:
+  albums:
+    type: pages
+    label: Albums
+    template: album
+    create: album
