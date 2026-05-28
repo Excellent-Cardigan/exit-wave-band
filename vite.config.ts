@@ -4,6 +4,21 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
+  root: 'frontend',
+  publicDir: path.resolve(__dirname, './public'),
+  build: {
+    outDir: path.resolve(__dirname, './dist'),
+    emptyOutDir: true,
+  },
+  server: {
+    proxy: {
+      '/cms': {
+        target: 'http://exit-wave-faith.test',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/cms/, ''),
+      },
+    },
+  },
   plugins: [
     // The React and Tailwind plugins are both required for Make, even if
     // Tailwind is not being actively used – do not remove them
@@ -13,7 +28,7 @@ export default defineConfig({
   resolve: {
     alias: {
       // Alias @ to the src directory
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './frontend/src'),
     },
   },
 
