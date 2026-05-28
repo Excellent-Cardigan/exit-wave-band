@@ -1,0 +1,40 @@
+title: Album
+icon: record
+
+tabs:
+  info:
+    label: Info
+    fields:
+      title:
+        label: Title
+        type: text
+        required: true
+        help: Album or EP name as it appears publicly
+
+      year:
+        label: Release Year
+        type: number
+        help: e.g. 2026
+
+      artist:
+        label: Artist
+        type: text
+        default: exit.wave
+        help: "Defaults to 'exit.wave'. Use circle name for solo records (e.g. PURITY)."
+
+      tracks:
+        label: Tracks
+        type: pages
+        query: page('tracks').children()
+        multiple: true
+        help: Select the tracks that appear on this album
+
+  cover:
+    label: Cover Art
+    sections:
+      cover_files:
+        type: files
+        template: cover
+        label: Cover Art
+        max: 1
+        layout: cards

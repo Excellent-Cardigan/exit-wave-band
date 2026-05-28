@@ -1,9 +1,0 @@
-title: Members
-icon: users
-
-sections:
-  members:
-    type: pages
-    label: Members
-    template: member
-    create: member

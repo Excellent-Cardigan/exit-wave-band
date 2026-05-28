@@ -12,6 +12,31 @@ npm run build  # Production build
 
 No test runner or lint script is configured in package.json. This project was bootstrapped from Figma Make.
 
+## Local Development Setup
+
+Two separate servers — always run both:
+
+| Server | URL | Purpose |
+|---|---|---|
+| Vite (React frontend) | `http://localhost:5173` | HMR, hot reload, proxies `/cms` to Herd |
+| Laravel Herd (Kirby CMS) | `http://exit-wave-faith.test` | Kirby panel + PHP API |
+
+**Starting them:**
+- Vite: `npm run dev` (run in background)
+- Herd: managed by Laravel Herd desktop app — auto-serves from project root (`index.php` at root, no manual path needed)
+
+**How it works:** Vite proxies all `/cms/*` requests to `http://exit-wave-faith.test`, stripping the `/cms` prefix before forwarding. Kirby at the Herd root receives clean paths (`/tracks.json`, `/members.json`, etc.). No mock data — dev and prod both hit real Kirby content. Edit content at `http://exit-wave-faith.test/panel`.
+
+**PHP built-in server (`php -S`) does NOT work** for Kirby on this machine — Windows routing issues. Always use Herd.
+
+## Deployment
+
+- **Host:** cPanel at exitwave.band
+- **Method:** cPanel Git Version Control → Deploy HEAD Commit
+- **`dist/` is committed to git** — build output lives in the repo so cPanel copies files directly
+- `.cpanel.yml` copies `dist/` to `/home/exitrgsu/public_html/`
+- Workflow: `npm run build` → commit `dist/` → push → deploy in cPanel panel
+
 ## Architecture
 
 **Stack:** React 18 + Vite 6 + Tailwind CSS v4 + React Router 7 + Motion (Framer Motion v11)
@@ -50,11 +75,11 @@ Uses ref-sync pattern (`currentTrackRef`, `trackListRef`, `isPlayingRef`) to avo
 
 ### Kirby CMS integration
 
-Content is served from Kirby (headless, installed at `public/cms/`).
+Content is served from Kirby (headless). Kirby lives at the project root (`index.php`, `content/`, `site/`, `composer.json`). Herd serves it at `http://exit-wave-faith.test`.
 
-- **Production:** PHP at `/cms/tracks.json`, `/cms/members.json`, `/cms/lore.json`
-- **Dev:** Vite can't run PHP — requests go to `/mock/*.json` fixtures in `public/mock/`
-- `src/app/lib/kirby.ts` — `kirbyFetch()` switches base URL: `/mock` in dev, `/cms` in prod
+- **Both dev and prod:** React fetches `/cms/tracks.json`, `/cms/members.json`, `/cms/lore.json`
+- **Dev:** Vite proxies `/cms/*` → `http://exit-wave-faith.test`, rewriting the path (strips `/cms` prefix so Kirby receives `/tracks.json` etc). No mock data — real Kirby in all environments.
+- `src/app/lib/kirby.ts` — `kirbyFetch()` always uses `/cms` base URL
 - `src/app/hooks/useKirbyData.ts` — data-fetching hooks
 - `src/app/hooks/useContactForm.ts` — contact form submission
 - `src/app/types/kirby.ts` — `KirbyTrack`, `KirbyMember`, `KirbyLoreEntry` types
@@ -72,7 +97,7 @@ Content is served from Kirby (headless, installed at `public/cms/`).
 ### Styles (`src/styles/`)
 
 - `theme.css` — CSS custom properties for the full design system (colors, typography tokens, radius = 0, glow utilities)
-- `fonts.css` — Google Fonts imports
+- `fonts.css` — Adobe Fonts (Typekit kit `emu5gzu`) imports
 - `tailwind.css` — Tailwind base import
 - `index.css` — Root import (loads fonts, tailwind, theme)
 
@@ -92,7 +117,7 @@ Content is served from Kirby (headless, installed at `public/cms/`).
 **Typography — three layers (Adobe Fonts — kit URL required in `src/styles/fonts.css`):**
 - `.text-display` → `--font-display` (Ohno Fatface) — logo, member circle names, big lore headers. Never for UI chrome.
 - `.text-condensed` → `--font-condensed` (Field Gothic) — nav labels, section headers, archive rows.
-- `.text-mono` → `--font-mono` (Suisse International Mono) — all UI chrome, metadata, timestamps, status labels.
+- `.text-mono` → `--font-mono` (Tchig Mono) — all UI chrome, metadata, timestamps, status labels.
 - Cormorant, Gilda Display, IBM Plex Mono, Playfair Display are **removed** — do not reintroduce.
 
 All radii are 0 (sharp corners everywhere — `--radius: 0`).
@@ -126,15 +151,6 @@ Critical files to create when building the stem player:
 - `src/graph/simulation.js` — d3-force simulation and tick loop
 - `src/audio/beatScheduler.js` — lookahead scheduler, BeatBus emitter
 - `public/songs/manifest.schema.json` — song manifest contract
-
-## Deployment
-
-- **Host:** cPanel shared hosting at exitwave.band (IP: 198.54.115.33)
-- **Method:** cPanel Git Version Control → Deploy HEAD Commit
-- **`dist/` is committed to git** — Vite build output lives in the repo so cPanel copies files directly
-- `.cpanel.yml` copies `dist/` to `/home/exitrgsu/public_html/`
-- `.htaccess` in `public/` handles React Router client-side routing and passes `/cms` requests through to PHP
-- **Audio files must be uploaded manually via cPanel File Manager** — Git LFS objects don't deploy via cPanel git. Audio is served from `/audio/` in `public_html/`.
 
 ## Reference Documents
 

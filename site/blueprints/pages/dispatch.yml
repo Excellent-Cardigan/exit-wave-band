@@ -1,0 +1,39 @@
+title: Dispatch
+icon: text
+
+tabs:
+  content:
+    label: Content
+    fields:
+      title:
+        label: Title
+        type: text
+        required: true
+
+      date:
+        label: Date
+        type: date
+        default: today
+        required: true
+
+      author:
+        label: Author
+        type: text
+        default: exit.wave
+        help: "Use circle name for member-authored posts (e.g. PURITY)"
+
+      body:
+        label: Body
+        type: textarea
+        size: large
+        help: Markdown supported
+
+  cover:
+    label: Cover Image
+    sections:
+      cover_files:
+        type: files
+        template: cover
+        label: Cover Image
+        max: 1
+        layout: cards

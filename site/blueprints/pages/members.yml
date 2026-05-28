@@ -1,0 +1,16 @@
+title: Members
+icon: users
+
+sections:
+  members:
+    type: pages
+    label: Members
+    template: member
+    create: member
+    image:
+      query: page.files.findBy('template', 'member-photo')
+      ratio: 1/1
+      back: black
+    info: "{{ page.role.value }}"
+    layout: cards
+    size: small

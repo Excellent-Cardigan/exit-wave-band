@@ -1,0 +1,72 @@
+title: Track
+icon: music
+
+columns:
+  media_col:
+    width: 1/2
+    sections:
+      cover_files:
+        type: files
+        template: cover
+        label: Cover Art
+        max: 1
+        layout: cards
+      audio_files:
+        type: files
+        template: audio
+        label: Audio File
+        max: 1
+        layout: list
+
+  info_col:
+    width: 1/2
+    sections:
+      info_fields:
+        type: fields
+        fields:
+          title:
+            width: 1/1
+            label: Title
+            type: text
+            required: true
+            help: The track name as it appears publicly
+          album:
+            width: 1/1
+            label: Album
+            type: text
+            help: EP or album name (e.g. Night Hymns, Demos Vol. 1)
+          track_status:
+            width: 1/2
+            label: Status
+            type: select
+            required: true
+            help: Controls the badge shown in the archive terminal
+            options:
+              final: Final
+              demo: Demo
+              b-side: B-Side
+          featured:
+            width: 1/2
+            label: Featured Track
+            type: toggle
+            text: ["No", "Yes"]
+            help: Hero card — only one track should be featured
+          bpm:
+            width: 1/2
+            label: BPM
+            type: number
+            min: 60
+            max: 200
+            help: Beats per minute
+          duration:
+            width: 1/2
+            label: Duration
+            type: text
+            placeholder: "4:32"
+            help: "Format: M:SS — enter manually"
+          stems:
+            width: 1/1
+            label: Stems Available
+            type: toggle
+            text: ["No", "Yes"]
+            help: Are stems available for remix/licensing?

@@ -1,0 +1,70 @@
+title: Home
+
+tabs:
+  music:
+    label: Music
+    icon: audio
+    sections:
+      albums:
+        type: pages
+        label: Albums
+        query: kirby.page('albums').children
+        image:
+          query: page.files.findBy('template', 'cover')
+          ratio: 1/1
+          back: black
+        info: "{{ page.year.value }} · {{ page.artist.value }}"
+        layout: cards
+        size: small
+        empty: No albums yet
+      tracks:
+        type: pages
+        label: Tracks
+        query: kirby.page('tracks').children
+        image:
+          query: page.files.findBy('template', 'cover')
+          ratio: 1/1
+          back: black
+        info: "{{ page.track_status.value }} · {{ page.bpm.value }} BPM"
+        sortable: true
+        empty: No tracks yet
+
+  collective:
+    label: Collective
+    icon: users
+    sections:
+      members:
+        type: pages
+        label: Members
+        query: kirby.page('members').children
+        image:
+          query: page.files.findBy('template', 'member-photo')
+          ratio: 1/1
+          back: black
+        info: "{{ page.role.value }}"
+        layout: cards
+        size: small
+        sortable: true
+        empty: No members yet
+
+  content:
+    label: Content
+    icon: text
+    sections:
+      dispatches:
+        type: pages
+        label: Dispatches
+        query: kirby.page('dispatches').children
+        image:
+          query: page.files.findBy('template', 'cover')
+          ratio: 16/9
+          back: black
+        info: "{{ page.date.toDate('M j, Y') }}"
+        sortable: true
+        empty: No dispatches yet
+      lore:
+        type: pages
+        label: Lore
+        query: site.pages.filterBy('template', 'lore')
+        empty: No lore page found
+        limit: 1

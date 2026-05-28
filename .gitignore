@@ -39,3 +39,14 @@ public/cms/content/.lock
 # Kirby CMS — content is panel-managed, not git-tracked
 public/cms/content/
 dist/cms/content/
+
+# Kirby CMS — new root-level structure (Composer-managed)
+/kirby/
+/vendor/
+/media/
+/content/
+/site/accounts/
+/site/cache/
+/site/sessions/
+/site/storage/
+public/.rnd

@@ -1,0 +1,16 @@
+title: Albums
+icon: records
+
+sections:
+  albums:
+    type: pages
+    label: Albums
+    template: album
+    create: album
+    image:
+      query: page.files.findBy('template', 'cover')
+      ratio: 1/1
+      back: black
+    info: "{{ page.year.value }} · {{ page.artist.value }}"
+    layout: cards
+    size: small
