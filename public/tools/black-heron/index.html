@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>THE BLACK HERON // feather generator</title>
+<style>
+  /* ---- Exit-Wave palette (ground truth: frontend/src/styles/theme.css) ---- */
+  :root {
+    --void: #010313;
+    --void-2: #010212;
+    --black-gem-1: #080b3f;
+    --black-gem-3: #03052c;
+    --blue-gem: #1a34a4;
+    --signal: #004df1;
+    --signal-hi: #397eff;
+    --bone: #e6e6e6;
+    --bone-dim: rgba(230, 230, 230, 0.4);
+    --signal-dim: rgba(0, 77, 241, 0.2);
+    --signal-border: rgba(0, 77, 241, 0.5);
+    --signal-ghost: rgba(0, 77, 241, 0.06);
+    --mono: "tchig-mono", ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+    --radius: 0;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--void);
+    color: var(--bone);
+    font-family: var(--mono);
+    overflow: hidden;
+  }
+
+  /* analog grain overlay (mirrors theme.css body::after) */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 40;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='128' height='128'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='128' height='128' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  #app { display: flex; height: 100%; width: 100%; }
+
+  /* ---- canvas stage ---- */
+  #stage {
+    position: relative;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+  #stage canvas { display: block; }
+
+  .stage-label {
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    font-size: 10px;
+    letter-spacing: 0.28em;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    z-index: 5;
+    pointer-events: none;
+  }
+
+  /* ---- control panel ---- */
+  #panel {
+    flex: 0 0 288px;
+    height: 100%;
+    overflow-y: auto;
+    padding: 22px 20px 40px;
+    background: linear-gradient(180deg, var(--void-2), var(--black-gem-3));
+    border-left: 1px solid var(--signal-border);
+  }
+
+  .brand {
+    font-size: 11px;
+    letter-spacing: 0.34em;
+    color: var(--signal-hi);
+    text-shadow: 0 0 8px rgba(0, 77, 241, 0.6), 0 0 16px rgba(0, 77, 241, 0.25);
+    margin: 0 0 2px;
+  }
+  .subbrand {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    margin: 0 0 22px;
+  }
+
+  .group-label {
+    font-size: 9px;
+    letter-spacing: 0.26em;
+    color: var(--bone-dim);
+    text-transform: uppercase;
+    margin: 20px 0 10px;
+    border-bottom: 1px solid var(--signal-ghost);
+    padding-bottom: 6px;
+  }
+
+  .ctl { margin-bottom: 14px; }
+  .ctl-head {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .ctl-head .val { color: var(--signal-hi); }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--signal-dim);
+    outline: none;
+    border-radius: 0;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 11px;
+    height: 11px;
+    background: var(--signal-hi);
+    border-radius: 0;
+    box-shadow: 0 0 6px rgba(0, 77, 241, 0.7);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 11px;
+    height: 11px;
+    border: 0;
+    background: var(--signal-hi);
+    border-radius: 0;
+    box-shadow: 0 0 6px rgba(0, 77, 241, 0.7);
+    cursor: pointer;
+  }
+
+  .seg {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--signal-border);
+  }
+  .seg button {
+    flex: 1;
+    background: transparent;
+    color: var(--bone-dim);
+    border: 0;
+    border-right: 1px solid var(--signal-ghost);
+    padding: 8px 4px;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color 0.25s ease, background 0.25s ease;
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button.on {
+    color: var(--void);
+    background: var(--signal);
+    text-shadow: none;
+  }
+
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row .ctl { flex: 1; margin-bottom: 0; }
+
+  input[type="number"] {
+    width: 100%;
+    background: var(--void);
+    border: 1px solid var(--signal-border);
+    color: var(--bone);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 7px 8px;
+    border-radius: 0;
+    outline: none;
+  }
+  input[type="number"]:focus { border-color: var(--signal-hi); }
+
+  button.act {
+    width: 100%;
+    background: transparent;
+    color: var(--bone);
+    border: 1px solid var(--signal-border);
+    padding: 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+    margin-top: 8px;
+  }
+  button.act:hover {
+    border-color: var(--signal-hi);
+    color: var(--signal-hi);
+    background: var(--signal-ghost);
+  }
+  button.act.primary {
+    background: var(--signal);
+    color: var(--void);
+    border-color: var(--signal);
+    font-weight: 600;
+  }
+  button.act.primary:hover {
+    background: var(--signal-hi);
+    border-color: var(--signal-hi);
+    color: var(--void);
+  }
+
+  .hint {
+    font-size: 8.5px;
+    letter-spacing: 0.1em;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    margin-top: 18px;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 720px) {
+    #app { flex-direction: column-reverse; }
+    #panel { flex-basis: auto; height: 46%; border-left: 0; border-top: 1px solid var(--signal-border); }
+    #stage { height: 54%; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="stage">
+    <div class="stage-label">Egretta ardesiaca — canopy specimen</div>
+  </div>
+
+  <aside id="panel">
+    <h1 class="brand">THE BLACK HERON</h1>
+    <p class="subbrand">feather generator // exit-wave</p>
+
+    <div class="group-label">Structure</div>
+
+    <div class="ctl">
+      <div class="ctl-head"><span>Barb density</span><span class="val" id="v-density">128</span></div>
+      <input type="range" id="density" min="40" max="260" step="1" value="128" />
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Curl</span><span class="val" id="v-curl">0.32</span></div>
+      <input type="range" id="curl" min="-0.6" max="0.9" step="0.01" value="0.32" />
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Length</span><span class="val" id="v-length">0.78</span></div>
+      <input type="range" id="length" min="0.4" max="1" step="0.01" value="0.78" />
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Asymmetry</span><span class="val" id="v-asym">0.42</span></div>
+      <input type="range" id="asym" min="0" max="0.85" step="0.01" value="0.42" />
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Split / fray</span><span class="val" id="v-split">0.34</span></div>
+      <input type="range" id="split" min="0" max="1" step="0.01" value="0.34" />
+    </div>
+
+    <div class="group-label">Finish</div>
+
+    <div class="ctl">
+      <div class="ctl-head"><span>Signal glow</span><span class="val" id="v-glow">0.6</span></div>
+      <input type="range" id="glow" min="0" max="1" step="0.01" value="0.6" />
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Colour mode</span><span class="val" id="v-color">blue-tipped</span></div>
+      <div class="seg" id="colorSeg">
+        <button data-mode="mono">mono</button>
+        <button data-mode="tipped" class="on">tipped</button>
+        <button data-mode="irid">irid</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <div class="ctl-head"><span>Background</span><span class="val" id="v-bg">void</span></div>
+      <div class="seg" id="bgSeg">
+        <button data-bg="void" class="on">void</button>
+        <button data-bg="transparent">transparent</button>
+      </div>
+    </div>
+
+    <div class="group-label">Seed</div>
+    <div class="row">
+      <div class="ctl">
+        <div class="ctl-head"><span>Value</span></div>
+        <input type="number" id="seed" value="1077" min="0" step="1" />
+      </div>
+    </div>
+    <button class="act" id="randomize">⟳ Randomize</button>
+
+    <div class="group-label">Output</div>
+    <button class="act" id="motion">❚❚ Idle motion: on</button>
+    <button class="act primary" id="export">↧ Export PNG</button>
+
+    <p class="hint">
+      Matte void-black vane · electric-blue signal edge · analog grain.
+      Same seed reproduces the same feather. Pause motion for a clean still.
+    </p>
+  </aside>
+</div>
+
+<script src="p5.min.js"></script>
+<script>
+/* ===========================================================================
+   THE BLACK HERON — procedural feather generator (p5, global mode)
+   Naturalistic feather structure recoloured into the Exit-Wave palette.
+   =========================================================================== */
+
+// ---- palette ----
+const PAL = {
+  void:      [1, 3, 19],
+  blackGem3: [3, 5, 44],
+  blackGem1: [8, 11, 63],
+  blueGem:   [26, 52, 164],
+  signal:    [0, 77, 241],
+  signalHi:  [57, 126, 255],
+  bone:      [230, 230, 230],
+};
+
+// ---- live parameters (driven by the UI) ----
+const P = {
+  density: 128,
+  curl: 0.32,
+  length: 0.78,
+  asym: 0.42,
+  split: 0.34,
+  glow: 0.6,
+  colorMode: "tipped",   // mono | tipped | irid
+  bg: "void",            // void | transparent
+  seed: 1077,
+  motion: true,
+};
+
+let reducedMotion = false;
+let stageEl;
+
+function setup() {
+  stageEl = document.getElementById("stage");
+  const s = stageSize();
+  const cnv = createCanvas(s.w, s.h);
+  cnv.parent(stageEl);
+  reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reducedMotion) P.motion = false;
+  pixelDensity(Math.min(2, window.devicePixelRatio || 1));
+  wireUI();
+  syncLabels();
+}
+
+function stageSize() {
+  const r = stageEl.getBoundingClientRect();
+  return { w: Math.max(320, Math.floor(r.width)), h: Math.max(320, Math.floor(r.height)) };
+}
+
+function windowResized() {
+  const s = stageSize();
+  resizeCanvas(s.w, s.h);
+}
+
+// A calm breathing offset; frozen (0) when motion is off so exports are stable.
+function breath() {
+  if (!P.motion) return { sway: 0, lift: 0, shimmer: 1 };
+  const t = millis() / 1000;
+  // eased, low-frequency — "nothing snaps"
+  const sway = Math.sin(t * 0.42) * 0.028 + Math.sin(t * 0.17) * 0.012; // radians
+  const lift = Math.sin(t * 0.33) * 6;                                   // px
+  const shimmer = 0.85 + 0.15 * (0.5 + 0.5 * Math.sin(t * 1.1));         // glow mult
+  return { sway, lift, shimmer };
+}
+
+function draw() {
+  // background
+  if (P.bg === "void") {
+    background(PAL.void[0], PAL.void[1], PAL.void[2]);
+    drawVignette();
+  } else {
+    clear();
+  }
+
+  const b = breath();
+  randomSeed(P.seed);
+  noiseSeed(P.seed);
+
+  push();
+  translate(width / 2, height / 2 + b.lift);
+  rotate(b.sway);
+  drawFeather(b.shimmer);
+  pop();
+
+  if (!P.motion) noLoop();
+}
+
+// -------------------------------------------------------------------------
+// Feather geometry
+// -------------------------------------------------------------------------
+function drawFeather(shimmer) {
+  const featherLen = min(width, height) * 0.82 * P.length;
+  const halfWidthMax = featherLen * 0.19;
+  const tipY = -featherLen * 0.62;   // pointing up
+  const baseY = featherLen * 0.38;   // calamus below centre
+  const barbCount = Math.floor(P.density);
+
+  // Rachis control points (curved shaft): base -> tip, bowed by curl.
+  const bow = P.curl * featherLen * 0.16;
+  const rachis = (u) => {
+    // u in [0,1] from base(0) to tip(1)
+    const y = lerp(baseY, tipY, u);
+    // quadratic bow, strongest mid-shaft
+    const x = bow * (4 * u * (1 - u));
+    return createVector(x, y);
+  };
+  const rachisTangent = (u) => {
+    const a = rachis(Math.max(0, u - 0.01));
+    const c = rachis(Math.min(1, u + 0.01));
+    return p5.Vector.sub(c, a).normalize();
+  };
+
+  // vane envelope: 0 at base, swells, tapers to a point at tip
+  const vane = (u) => {
+    // fast rise near calamus, long taper to tip
+    const rise = Math.min(1, u / 0.14);
+    const taper = Math.pow(1 - u, 0.72);
+    return halfWidthMax * rise * taper;
+  };
+
+  const glowAmt = P.glow * shimmer;
+
+  // ---- soft vane membrane: a dark silhouette so the feather always reads ----
+  drawVaneMembrane(rachis, rachisTangent, vane);
+
+  // ---- barbs (draw back-to-front: right/trailing side first for depth) ----
+  // side = +1 trailing (wider), -1 leading (narrower)
+  drawSide(+1, barbCount, rachis, rachisTangent, vane, featherLen, glowAmt);
+  drawSide(-1, barbCount, rachis, rachisTangent, vane, featherLen, glowAmt);
+
+  // ---- rachis shaft on top ----
+  drawRachis(rachis, glowAmt);
+
+  // ---- calamus (bare quill) ----
+  drawCalamus(rachis);
+}
+
+// shared barb direction (normal blended toward the shaft-tip as u -> 1)
+function barbDirection(u, side, rachisTangent) {
+  const tan = rachisTangent(u);
+  const nx = -tan.y * side, ny = tan.x * side;
+  const sweep = lerp(0.25, 0.78, Math.pow(u, 0.8));
+  let dx = lerp(nx, tan.x, sweep), dy = lerp(ny, tan.y, sweep);
+  const l = Math.hypot(dx, dy) || 1;
+  return { x: dx / l, y: dy / l };
+}
+
+// filled vane outline — the feather's silhouette, sitting just above the void
+function drawVaneMembrane(rachis, rachisTangent, vane) {
+  const steps = 46;
+  const sideScale = (side) => (side < 0 ? 1 - P.asym * 0.62 : 1 + P.asym * 0.18);
+  const edge = (side) => {
+    const arr = [];
+    for (let s = 0; s <= steps; s++) {
+      const u = Math.max(0.02, s / steps);
+      const b = rachis(u);
+      const d = barbDirection(u, side, rachisTangent);
+      const len = vane(u) * sideScale(side) * 0.9;
+      arr.push([b.x + d.x * len, b.y + d.y * len]);
+    }
+    return arr;
+  };
+  const right = edge(+1);
+  const left = edge(-1);
+  noStroke();
+  fill(P.colorMode === "mono" ? color(20, 21, 27, 205) : color(13, 17, 46, 205));
+  beginShape();
+  right.forEach((p) => vertex(p[0], p[1]));
+  for (let i = left.length - 1; i >= 0; i--) vertex(left[i][0], left[i][1]);
+  endShape(CLOSE);
+}
+
+function drawSide(side, barbCount, rachis, rachisTangent, vane, featherLen, glowAmt) {
+  const leading = side < 0;
+  // leading vane is shorter/narrower via asymmetry
+  const sideScale = leading ? (1 - P.asym * 0.62) : (1 + P.asym * 0.18);
+  const n = Math.floor(barbCount / 2);
+
+  for (let i = 0; i < n; i++) {
+    const u = i / (n - 1);                 // 0 base .. 1 tip
+    if (u < 0.03) continue;                // skip bare calamus zone
+    const base = rachis(u);
+    const tan = rachisTangent(u);
+    // outward normal (perpendicular to shaft)
+    let nx = -tan.y * side;
+    let ny = tan.x * side;
+
+    // barb sweep: steeper (more upward) toward the tip
+    const sweep = lerp(0.25, 0.78, Math.pow(u, 0.8)); // 0 flat .. 1 aligned to tip
+    // blend normal with shaft-tip direction
+    let dx = lerp(nx, tan.x, sweep);
+    let dy = lerp(ny, tan.y, sweep);
+    const dLen = Math.hypot(dx, dy) || 1;
+    dx /= dLen; dy /= dLen;
+
+    // barb length from vane envelope + per-barb noise
+    let bl = vane(u) * sideScale;
+    const nz = noise(i * 0.14, side * 3.1, P.seed * 0.001);
+    bl *= 0.72 + 0.5 * nz;
+
+    // split / fray: open gaps + shorten scattered barbs
+    let frayed = false;
+    if (P.split > 0) {
+      const g = noise(i * 0.33 + 11, side * 7.7);
+      if (g < P.split * 0.34) continue;            // gap (missing barb)
+      if (g < P.split * 0.6) { bl *= 0.55; frayed = true; } // stubby / broken
+    }
+
+    // curved barb: base -> mid (bowed) -> tip
+    const curveBow = (0.10 + 0.16 * nz) * bl * (leading ? -1 : 1);
+    // perpendicular to barb dir for the bow
+    const px = -dy, py = dx;
+    const tipx = base.x + dx * bl;
+    const tipy = base.y + dy * bl;
+    const midx = base.x + dx * bl * 0.5 + px * curveBow;
+    const midy = base.y + dy * bl * 0.5 + py * curveBow;
+
+    const tNorm = u; // along shaft for colour
+    strokeWeight(lerp(1.6, 0.6, u) * (frayed ? 0.7 : 1));
+    strokeCap(ROUND);
+
+    drawBarb(base.x, base.y, midx, midy, tipx, tipy, tNorm, leading, glowAmt, frayed, nz);
+  }
+}
+
+// draw a single barb as a short quadratic curve with a luminous tip.
+// NB: p5 2.0 removed quadraticVertex(), so we sample the Bézier into
+// line segments by hand — this always renders regardless of shape-API changes.
+function drawBarb(x0, y0, xm, ym, x1, y1, tNorm, leading, glowAmt, frayed, nz) {
+  const bodyCol = barbBodyColor(tNorm, leading, nz);
+  const edgeCol = barbEdgeColor(tNorm, nz);
+
+  const N = 7;
+  const px = new Array(N + 1), py = new Array(N + 1);
+  for (let k = 0; k <= N; k++) {
+    const t = k / N, it = 1 - t;
+    px[k] = it * it * x0 + 2 * it * t * xm + t * t * x1;
+    py[k] = it * it * y0 + 2 * it * t * ym + t * t * y1;
+  }
+
+  noFill();
+  drawingContext.shadowBlur = 0;
+
+  // body fibre
+  stroke(bodyCol);
+  for (let k = 0; k < N; k++) line(px[k], py[k], px[k + 1], py[k + 1]);
+
+  if (P.colorMode !== "mono" && glowAmt > 0.01) {
+    // luminous outer half — electric signal edge with glow
+    drawingContext.shadowBlur = 10 * glowAmt;
+    drawingContext.shadowColor = `rgba(0,77,241,${0.7 * glowAmt})`;
+    stroke(red(edgeCol), green(edgeCol), blue(edgeCol), frayed ? 175 : 240);
+    strokeWeight(1.3);
+    const s = Math.floor(N * 0.5);
+    for (let k = s; k < N; k++) line(px[k], py[k], px[k + 1], py[k + 1]);
+    // bright spark at the very tip
+    stroke(PAL.signalHi[0], PAL.signalHi[1], PAL.signalHi[2], 240);
+    strokeWeight(1.9);
+    point(x1, y1);
+    drawingContext.shadowBlur = 0;
+  } else if (P.colorMode === "mono") {
+    // faint bone rim so the mono vane still catches an edge
+    stroke(PAL.bone[0], PAL.bone[1], PAL.bone[2], 48);
+    strokeWeight(0.8);
+    const s = Math.floor(N * 0.6);
+    for (let k = s; k < N; k++) line(px[k], py[k], px[k + 1], py[k + 1]);
+  }
+}
+
+// -------------------------------------------------------------------------
+// Colour logic (Exit-Wave palette)
+// -------------------------------------------------------------------------
+function barbBodyColor(tNorm, leading, nz) {
+  // slate-blue fibres, brighter at the calamus, darkening toward the tip —
+  // kept clearly above the void so each barb reads against the background.
+  let base, tip;
+  if (P.colorMode === "mono") { base = [46, 48, 58]; tip = [18, 19, 26]; }
+  else { base = [40, 50, 100]; tip = [15, 20, 54]; }
+  const c = lerpColor(
+    color(base[0], base[1], base[2]),
+    color(tip[0], tip[1], tip[2]),
+    constrain(tNorm, 0, 1)
+  );
+  if (P.colorMode === "irid") {
+    // weave in blue-gem depth by noise
+    const irid = lerpColor(c, color(PAL.blueGem[0], PAL.blueGem[1], PAL.blueGem[2]), 0.4 * nz);
+    return color(red(irid), green(irid), blue(irid), 222);
+  }
+  // leading vane slightly darker for form
+  const shade = leading ? 0.8 : 1;
+  return color(red(c) * shade, green(c) * shade, blue(c) * shade, 222);
+}
+
+function barbEdgeColor(tNorm, nz) {
+  if (P.colorMode === "irid") {
+    return lerpColor(
+      color(PAL.blueGem[0], PAL.blueGem[1], PAL.blueGem[2]),
+      color(PAL.signalHi[0], PAL.signalHi[1], PAL.signalHi[2]),
+      constrain(0.3 + 0.7 * nz, 0, 1)
+    );
+  }
+  // tipped: electric signal, brighter toward the feather tip
+  return lerpColor(
+    color(PAL.signal[0], PAL.signal[1], PAL.signal[2]),
+    color(PAL.signalHi[0], PAL.signalHi[1], PAL.signalHi[2]),
+    constrain(tNorm, 0, 1)
+  );
+}
+
+// -------------------------------------------------------------------------
+// Rachis + calamus
+// -------------------------------------------------------------------------
+function drawRachis(rachis, glowAmt) {
+  const steps = 60;
+  noFill();
+  // soft under-glow along shaft
+  if (P.colorMode !== "mono" && glowAmt > 0.01) {
+    drawingContext.shadowBlur = 10 * glowAmt;
+    drawingContext.shadowColor = `rgba(0,77,241,${0.4 * glowAmt})`;
+  }
+  for (let s = 0; s < steps; s++) {
+    const u0 = s / steps;
+    const u1 = (s + 1) / steps;
+    const a = rachis(u0);
+    const b = rachis(u1);
+    const w = lerp(3.4, 0.4, u0); // thick at base -> hairline at tip
+    // shaft catches a pale bone highlight down its spine
+    const c = lerpColor(
+      color(PAL.blackGem1[0], PAL.blackGem1[1], PAL.blackGem1[2]),
+      color(PAL.bone[0], PAL.bone[1], PAL.bone[2], 210),
+      Math.pow(u0, 1.4) * 0.5
+    );
+    stroke(c);
+    strokeWeight(w);
+    strokeCap(ROUND);
+    line(a.x, a.y, b.x, b.y);
+  }
+  drawingContext.shadowBlur = 0;
+}
+
+function drawCalamus(rachis) {
+  const base = rachis(0);
+  const near = rachis(0.05);
+  stroke(PAL.blackGem1[0], PAL.blackGem1[1], PAL.blackGem1[2]);
+  strokeWeight(4.2);
+  strokeCap(ROUND);
+  line(base.x, base.y, near.x, near.y);
+  // translucent hollow shaft highlight
+  stroke(PAL.bone[0], PAL.bone[1], PAL.bone[2], 40);
+  strokeWeight(1.4);
+  line(base.x, base.y, near.x, near.y);
+}
+
+function drawVignette() {
+  // subtle radial darkening toward edges (no pure black)
+  const g = drawingContext.createRadialGradient(
+    width / 2, height / 2, min(width, height) * 0.2,
+    width / 2, height / 2, max(width, height) * 0.72
+  );
+  g.addColorStop(0, "rgba(1,3,19,0)");
+  g.addColorStop(1, "rgba(1,2,10,0.85)");
+  drawingContext.fillStyle = g;
+  drawingContext.fillRect(0, 0, width, height);
+}
+
+// -------------------------------------------------------------------------
+// UI wiring
+// -------------------------------------------------------------------------
+function rerender() {
+  // re-run the sketch loop for at least one frame (needed when motion is off)
+  loop();
+  if (!P.motion) { redraw(); noLoop(); }
+}
+
+function wireUI() {
+  const bind = (id, key, parse, labelId, fmt) => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      P[key] = parse(el.value);
+      if (labelId) document.getElementById(labelId).textContent = fmt ? fmt(P[key]) : P[key];
+      rerender();
+    });
+  };
+  bind("density", "density", (v) => parseInt(v, 10), "v-density");
+  bind("curl", "curl", parseFloat, "v-curl", (v) => v.toFixed(2));
+  bind("length", "length", parseFloat, "v-length", (v) => v.toFixed(2));
+  bind("asym", "asym", parseFloat, "v-asym", (v) => v.toFixed(2));
+  bind("split", "split", parseFloat, "v-split", (v) => v.toFixed(2));
+  bind("glow", "glow", parseFloat, "v-glow", (v) => v.toFixed(2));
+
+  document.getElementById("seed").addEventListener("input", (e) => {
+    const v = parseInt(e.target.value, 10);
+    P.seed = Number.isFinite(v) ? v : 0;
+    rerender();
+  });
+
+  document.getElementById("colorSeg").addEventListener("click", (e) => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    P.colorMode = btn.dataset.mode;
+    setSeg("colorSeg", btn);
+    document.getElementById("v-color").textContent =
+      { mono: "mono-void", tipped: "blue-tipped", irid: "iridescent" }[P.colorMode];
+    rerender();
+  });
+
+  document.getElementById("bgSeg").addEventListener("click", (e) => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    P.bg = btn.dataset.bg;
+    setSeg("bgSeg", btn);
+    document.getElementById("v-bg").textContent = P.bg;
+    rerender();
+  });
+
+  document.getElementById("randomize").addEventListener("click", () => {
+    P.seed = Math.floor(Math.random() * 9999);
+    document.getElementById("seed").value = P.seed;
+    // gently randomize structure too
+    setRange("density", P.density = 60 + Math.floor(Math.random() * 190));
+    setRange("curl", P.curl = +(-0.4 + Math.random() * 1.2).toFixed(2));
+    setRange("length", P.length = +(0.55 + Math.random() * 0.45).toFixed(2));
+    setRange("asym", P.asym = +(Math.random() * 0.8).toFixed(2));
+    setRange("split", P.split = +(Math.random() * 0.85).toFixed(2));
+    syncLabels();
+    rerender();
+  });
+
+  const motionBtn = document.getElementById("motion");
+  motionBtn.addEventListener("click", () => {
+    P.motion = !P.motion;
+    motionBtn.textContent = P.motion ? "❚❚ Idle motion: on" : "▶ Idle motion: off";
+    rerender();
+  });
+  if (reducedMotion) motionBtn.textContent = "▶ Idle motion: off";
+
+  document.getElementById("export").addEventListener("click", () => {
+    const wasMotion = P.motion;
+    P.motion = false;        // freeze for a clean, deterministic still
+    redraw();
+    saveCanvas("black-heron-feather-" + P.seed, "png");
+    P.motion = wasMotion;
+    rerender();
+  });
+}
+
+function setSeg(groupId, btn) {
+  document.querySelectorAll("#" + groupId + " button").forEach((b) => b.classList.remove("on"));
+  btn.classList.add("on");
+}
+function setRange(id, val) { document.getElementById(id).value = val; }
+function syncLabels() {
+  document.getElementById("v-density").textContent = P.density;
+  document.getElementById("v-curl").textContent = P.curl.toFixed(2);
+  document.getElementById("v-length").textContent = P.length.toFixed(2);
+  document.getElementById("v-asym").textContent = P.asym.toFixed(2);
+  document.getElementById("v-split").textContent = P.split.toFixed(2);
+  document.getElementById("v-glow").textContent = P.glow.toFixed(2);
+}
+</script>
+</body>
+</html>
