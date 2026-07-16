@@ -1,0 +1,5 @@
+{:paths ["src"]
+ :deps  {org.clojure/clojure {:mvn/version "1.11.3"}
+         quil/quil           {:mvn/version "4.3.1563"}}
+ :aliases
+ {:run {:main-opts ["-m" "black-heron.core"]}}}
