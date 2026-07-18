@@ -5,19 +5,26 @@ browser tool in `public/tools/black-heron/`, rewritten in the idiom I associate
 with Tyler Hobbs: the shape is a scaffold, and everything that makes it feel
 alive comes from **accumulation and controlled imperfection**.
 
-Two techniques carry the piece:
+Three techniques carry the piece:
 
 - **The vane is washed, not filled.** A single outline polygon is deformed by
-  recursive midpoint displacement (`geometry/deform`) and painted ~46 times at
-  `alpha 7`. No layer's edge is a line, and the overlaps build the soft,
-  irregular boundary of a watercolour wash.
+  recursive midpoint displacement (`geometry/deform`) and painted ~60 times.
+  The layers' tints walk a subtle warm↔cool ramp (`palette/wash-ramp`), a few
+  darker passes seat the outer edge, and a few lighter *inset* passes lift the
+  spine — so the vane glows from within rather than reading as a flat fill.
 - **The barbs are released into a flow field.** Each barb starts on the shaft
-  with an outward throw and is then combed through a Perlin field
-  (`geometry/trace-barb`), so it drifts, curves, and occasionally frays — the
-  way real heron plumage combs and parts — instead of radiating as rigid spokes.
+  with an outward throw and is combed through a Perlin field
+  (`geometry/trace-barb`) with a little per-barb momentum variation, so
+  neighbours don't curve in lockstep.
+- **The vane parts into locks.** A coarse, low-frequency `geometry/parting`
+  field opens gaps in *clusters* and lets barbs lean away from them — the
+  loosely-zipped look of real heron plumage, instead of random speckle.
 
-Colour is held to almost nothing. One barb in eight is allowed to catch a single
-bright note; the rest are close-valued body shades over a near-black ground.
+Colour is held to almost nothing: close-valued body shades (a continuous
+`:tone` per barb) over a near-black ground, with a handful of barbs catching a
+single bright note. The specimen sits on a faint plate-tone halo and is
+'placed' with a small seeded rotation and off-centre nudge — a natural-history
+plate, not a rigid axis.
 
 ## Design
 

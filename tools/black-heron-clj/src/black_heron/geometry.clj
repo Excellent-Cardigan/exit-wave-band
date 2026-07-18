@@ -25,6 +25,9 @@
 (defn midpoint [a b] (v* (v+ a b) 0.5))
 (defn lerp   [a b t] (+ a (* (- b a) t)))
 (defn lerp2  [a b t] (v+ a (v* (v- b a) t)))
+(defn vrot   [[x y] a]
+  (let [c (Math/cos a) s (Math/sin a)]
+    [(- (* x c) (* y s)) (+ (* x s) (* y c))]))
 
 ;; ---------------------------------------------------------------------------
 ;; the scaffold: shaft + vane envelope
@@ -85,29 +88,43 @@
 
 (defn trace-barb
   "Release a barb at `start` heading `dir0`, then let the flow field comb
-   it for `steps`. Momentum (0.82) dominates the field (0.18) so the barb
-   keeps its initial outward throw while slowly bending toward the tip.
-   Momentum is deliberately high (0.88): a barb that combs too eagerly
-   collapses onto the shaft and the whole thing reads as a flame, not a
-   feather. The barb should fan off the calamus first, then sweep."
-  [start dir0 steps step-len turbulence noise]
-  (loop [p start, dir (vnorm dir0), acc (transient [start]), i 0]
-    (if (>= i steps)
-      (persistent! acc)
-      (let [fa (flow-angle p turbulence noise)
-            fd [(Math/cos fa) (Math/sin fa)]
-            nd (vnorm (v+ (v* dir 0.88) (v* fd 0.12)))
-            np (v+ p (v* nd step-len))]
-        (recur np nd (conj! acc np) (inc i))))))
+   it for `steps`. `momentum` (~0.85–0.92) is how strongly the barb holds
+   its initial outward throw against the field: high momentum fans off the
+   calamus first and only then sweeps toward the tip; too low and the barb
+   collapses onto the shaft and the whole thing reads as a flame. A little
+   per-barb variation in momentum keeps neighbours from curving in lockstep."
+  [start dir0 steps step-len turbulence momentum noise]
+  (let [field (- 1.0 momentum)]
+    (loop [p start, dir (vnorm dir0), acc (transient [start]), i 0]
+      (if (>= i steps)
+        (persistent! acc)
+        (let [fa (flow-angle p turbulence noise)
+              fd [(Math/cos fa) (Math/sin fa)]
+              nd (vnorm (v+ (v* dir momentum) (v* fd field)))
+              np (v+ p (v* nd step-len))]
+          (recur np nd (conj! acc np) (inc i)))))))
+
+(defn parting
+  "A coarse, low-frequency field that carves the vane into locks. High
+   values are the body of a lock; the low valleys are the partings between
+   them. Because it varies slowly along the shaft it opens gaps in *clusters*
+   -- the loosely-zipped look of real heron plumage -- rather than the random
+   speckle a per-barb coin-flip would give."
+  [u side noise]
+  (noise (* u 3.1) (+ 11.0 (* side 1.7)) 7.0))
+
+(def ^:private parting-floor
+  "Below this the lock has fully opened -- no barb at all." 0.24)
 
 (defn barbs
   "Grow every barb of the feather as plain data. Each barb is a map:
      :points  the drifted poly-line
      :u       where on the shaft it left (0 calamus .. 1 tip)
      :side    -1 leading / +1 trailing
-     :fray    a broken/short barb (heron plumage is loosely zipped)
+     :fray    a short, weak barb at the edge of a parting
+     :flag    a rare long stray barb near the tip
      :accent  one of the rare barbs that catches the bright note
-     :shade   which body colour it takes
+     :tone    a continuous [0,1] body-colour position
 
    `opts` carries the injected randomness and the two dials the piece
    exposes: `:density` and `:turbulence`."
@@ -115,27 +132,36 @@
   (let [n (int density)]
     (for [i (range n)
           side [-1 1]
-          :let [u (/ (double (inc i)) (double n))]
-          :when (> u 0.05)]
-      (let [start    (rachis-pt frame u)
-            dir0     (barb-direction frame u side)
-            leading  (neg? side)
-            fray     (< (noise (* i 0.30) (* side 5.0) 0.0) 0.16)
-            ;; the leading vane is a touch shorter — asymmetry reads as 'real'
+          :let [u  (/ (double (inc i)) (double n))
+                pv (parting u side noise)]
+          ;; skip the calamus and any fully-open parting
+          :when (and (> u 0.05) (> pv parting-floor))]
+      (let [leading  (neg? side)
+            ;; lean away from the nearest gap by following the parting gradient
+            dp    (- (parting (+ u 0.03) side noise)
+                     (parting (- u 0.03) side noise))
+            dir0  (vrot (barb-direction frame u side) (* dp 1.4))
+            start (rachis-pt frame u)
+            near-edge (< pv 0.40)                       ; barbs bordering a gap
+            flag  (and (> u 0.80) (< (rnd) 0.06))       ; rare long stray
+            ;; leading vane a touch shorter; barbs shrink into the parting
             side-scale (if leading 0.82 1.0)
-            base-len (* (vane-half-width frame u) 1.15 side-scale)
-            blen     (* base-len (if fray
-                                   (+ 0.30 (* 0.30 (rnd)))
-                                   (+ 0.85 (* 0.23 (rnd)))))
+            lock-scale (min 1.0 (/ (- pv parting-floor) 0.28))
+            base-len   (* (vane-half-width frame u) 1.15 side-scale lock-scale)
+            blen  (* base-len (cond flag      (+ 1.30 (* 0.25 (rnd)))
+                                    near-edge (+ 0.45 (* 0.30 (rnd)))
+                                    :else     (+ 0.85 (* 0.23 (rnd)))))
+            momentum (+ 0.85 (* 0.06 (rnd)))
             step-len 6.0
-            steps    (max 2 (int (/ blen step-len)))
-            pts      (trace-barb start dir0 steps step-len turbulence noise)]
+            steps (max 2 (int (/ blen step-len)))
+            pts   (trace-barb start dir0 steps step-len turbulence momentum noise)]
         {:points pts
          :u u
          :side side
-         :fray fray
-         :accent (and (not fray) (< (rnd) 0.12))
-         :shade  (int (* (rnd) 3))}))))
+         :fray near-edge
+         :flag flag
+         :accent (and (not near-edge) (< (rnd) 0.12))
+         :tone (rnd)}))))
 
 ;; ---------------------------------------------------------------------------
 ;; the vane outline — the polygon the watercolour wash is grown from

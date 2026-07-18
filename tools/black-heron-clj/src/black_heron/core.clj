@@ -6,17 +6,20 @@
    (data). Here we just seed the world, grow the barbs, and lay down marks:
 
      - the vane is not filled, it is *washed* — one polygon deformed and
-       painted forty-odd times at alpha 7, so its edge is never a line;
+       painted ~60 times in tints that walk a subtle warm<->cool ramp, with
+       darker layers seating the edge and lighter inset layers lifting the
+       spine, so the feather glows from within instead of reading flat;
      - the barbs are not drawn from a diagram — each is released along the
-       shaft and combed through a Perlin flow field until it frays or reaches;
-     - colour is held back to almost nothing, and one barb in eight is let
-       to catch the single bright note.
+       shaft and combed through a Perlin flow field, the vane parting into
+       locks the way real heron plumage does;
+     - colour is held back to almost nothing, and a handful of barbs catch
+       the single bright note.
 
    Controls
      SPACE   new seed
      P       cycle palette
-     ↑ / ↓   barb density
-     ← / →   flow turbulence
+     up/down    barb density
+     left/right flow turbulence
      S       save a PNG next to where you launched it"
   (:require [quil.core :as q]
             [black-heron.geometry :as geom]
@@ -35,38 +38,66 @@
   [c amt]
   (q/constrain (+ c (* (q/random-gaussian) amt)) 0 255))
 
+(defn- fill-poly [p]
+  (q/begin-shape)
+  (doseq [[x y] p] (q/vertex x y))
+  (q/end-shape :close))
+
+(defn- centroid [poly]
+  (let [n (count poly)
+        [sx sy] (reduce (fn [[ax ay] [x y]] [(+ ax x) (+ ay y)]) [0.0 0.0] poly)]
+    [(/ sx n) (/ sy n)]))
+
 (defn- wash
-  "Grow a polygon into a watercolour body: `layers` independent
-   deformations of the same seed shape, each a translucent fill."
-  [poly {:keys [layers depth variance color alpha gauss]}]
+  "Grow the vane as a watercolour body. Many translucent, independently
+   deformed layers whose tints walk the palette's warm<->cool ramp build
+   internal luminosity; a few darker full-shape layers seat the outer edge,
+   and a few lighter *inset* layers (pulled toward the centroid) lift the
+   spine — light down the shaft, shadow at the margins."
+  [poly pal {:keys [layers depth variance alpha gauss]}]
   (q/no-stroke)
-  (let [[r g b] color]
-    (dotimes [_ layers]
-      (let [p (geom/deform poly depth variance gauss)]
+  (let [c (centroid poly)]
+    (dotimes [_ 6]                                   ; seat the edge
+      (let [p (geom/deform poly depth (* variance 1.2) gauss)
+            [r g b] (palette/wash-ramp pal 0.12)]
+        (q/fill (jitter r 4) (jitter g 4) (jitter b 4) (int (* alpha 1.5)))
+        (fill-poly p)))
+    (dotimes [_ layers]                              ; luminous body
+      (let [t (q/random 1.0)
+            p (geom/deform poly depth variance gauss)
+            [r g b] (palette/wash-ramp pal t)]
         (q/fill (jitter r 5) (jitter g 5) (jitter b 5) alpha)
-        (q/begin-shape)
-        (doseq [[x y] p] (q/vertex x y))
-        (q/end-shape :close)))))
+        (fill-poly p)))
+    (dotimes [_ 10]                                  ; lift the spine
+      (let [inset (mapv #(geom/lerp2 c % (q/random 0.60 0.82)) poly)
+            p (geom/deform inset depth (* variance 0.9) gauss)
+            [r g b] (palette/wash-ramp pal 0.9)]
+        (q/fill (jitter (+ r 6) 4) (jitter (+ g 8) 4) (jitter (+ b 12) 4)
+                (int (* alpha 0.8)))
+        (fill-poly p)))))
 
 (defn- paint-barb
-  "Lay a single barb down as a fading, thinning poly-line. Body colour
-   most of the way; the rare `:accent` barb catches the bright note near
-   its tip; a `:fray` barb is drawn weaker and shorter."
-  [{:keys [points shade fray accent]} pal]
+  "Lay a barb down as a faint wide halo plus a crisp fading fibre. Body
+   colour comes from the barb's continuous :tone; the rare :accent barb
+   catches the bright note near its tip; a frayed edge-barb is drawn weaker."
+  [{:keys [points tone fray accent]} pal]
   (q/no-fill)
   (let [pts  (vec points)
         n    (count pts)
-        body (palette/barb-color pal shade)
+        body (palette/barb-ramp pal tone)
         acc  (:accent pal)]
     (dotimes [k (dec n)]
       (let [[x0 y0] (pts k)
             [x1 y1] (pts (inc k))
             t   (/ (double k) (double (max 1 (dec n))))
             col (if (and accent (> t 0.6)) acc body)
-            a   (int (q/lerp 95 20 t))
+            a   (int (q/lerp 90 16 t))
             w   (q/lerp 1.5 0.3 (Math/pow t 0.7))]
-        (q/stroke (col 0) (col 1) (col 2) (if fray (int (* a 0.7)) a))
-        (q/stroke-weight (if fray (* w 0.75) w))
+        (q/stroke (col 0) (col 1) (col 2) (int (* a 0.22)))   ; halo
+        (q/stroke-weight (* w 2.4))
+        (q/line x0 y0 x1 y1)
+        (q/stroke (col 0) (col 1) (col 2) (if fray (int (* a 0.65)) a))
+        (q/stroke-weight (if fray (* w 0.7) w))               ; crisp fibre
         (q/line x0 y0 x1 y1)))))
 
 (defn- paint-rachis
@@ -88,13 +119,33 @@
         (q/stroke-weight (* w 0.35))
         (q/line x0 y0 x1 y1)))))
 
+(defn- ground
+  "A near-black plate that lifts very slightly behind the feather, so the
+   specimen sits in space rather than floating on a flat field."
+  [w h pal]
+  (apply q/background (:ground pal))
+  (q/no-stroke)
+  (let [[r g b] (:ground pal)
+        cx (* w 0.5) cy (* h 0.5)]
+    (dotimes [i 26]
+      (let [t (/ (double i) 26.0)
+            rad (* (max w h) (+ 0.15 (* 0.9 t)))]
+        (q/fill (+ r 10) (+ g 11) (+ b 16) 3)
+        (q/ellipse cx cy rad (* rad 1.15))))))
+
 (defn- grain
-  "A breath of tooth on the paper — sparse dark and light specks."
+  "A breath of tooth on the paper — dual dark/light specks, denser toward
+   the edges so the centre stays clean."
   [w h]
-  (dotimes [_ (int (* w h 0.014))]
-    (let [dark? (< (q/random 1.0) 0.5)]
-      (q/stroke (if dark? 0 255) (int (q/random 6 16)))
-      (q/point (q/random w) (q/random h)))))
+  (let [cx (* w 0.5) cy (* h 0.5)
+        maxd (Math/hypot cx cy)]
+    (dotimes [_ (int (* w h 0.02))]
+      (let [x (q/random w) y (q/random h)
+            d (/ (Math/hypot (- x cx) (- y cy)) maxd)]
+        (when (< (q/random 1.0) (+ 0.22 (* 0.78 d)))
+          (let [dark? (< (q/random 1.0) 0.55)]
+            (q/stroke (if dark? 0 255) (int (q/random 5 14)))
+            (q/point x y)))))))
 
 ;; ---------------------------------------------------------------------------
 ;; the piece
@@ -110,18 +161,24 @@
         nz  (fn [x y z] (q/noise x y z))]
     (q/random-seed seed)
     (q/noise-seed seed)
-    (apply q/background (:ground pal))
-    ;; realise the barbs first, so the PRNG is consumed in a fixed order and
-    ;; the same seed always grows the same feather
-    (let [bs   (vec (geom/barbs frame {:density density :turbulence turbulence
+    (ground w h pal)
+    ;; a 'placed' specimen: slight rotation + off-centre nudge, read from the
+    ;; noise field so it never disturbs the random stream the barbs depend on
+    (let [angle (* 0.06 (- (q/noise 41.0 7.0 1.0) 0.5) 2.0)
+          dx    (* w 0.02 (- (q/noise 5.0 9.0 2.0) 0.5) 2.0)
+          dy    (* h 0.015 (- (q/noise 8.0 3.0 3.0) 0.5) 2.0)
+          ;; realise barbs first so the PRNG is consumed in a fixed order
+          bs   (vec (geom/barbs frame {:density density :turbulence turbulence
                                        :rnd rnd :noise nz}))
           poly (geom/vane-polygon frame 42)]
-      (q/with-translation [(* w 0.5) (* h 0.52)]
-        (wash poly {:layers 46 :depth 4 :variance 0.14
-                    :color (palette/wash-ink pal 0.5) :alpha 7
-                    :gauss q/random-gaussian})
-        (doseq [b bs] (paint-barb b pal))
-        (paint-rachis frame pal)))
+      (q/push-matrix)
+      (q/translate (+ (* w 0.5) dx) (+ (* h 0.52) dy))
+      (q/rotate angle)
+      (wash poly pal {:layers 60 :depth 4 :variance 0.13 :alpha 6
+                      :gauss q/random-gaussian})
+      (doseq [b bs] (paint-barb b pal))
+      (paint-rachis frame pal)
+      (q/pop-matrix))
     (grain w h)
     (q/no-loop)))
 
@@ -138,7 +195,6 @@
       (\s \S) (q/save (str "black-heron-" (:seed @state) "-"
                            (System/currentTimeMillis) ".png"))
       (\p \P) (swap! state update :palette-idx inc)
-      ;; default — arrows arrive here as coded keys
       (condp = kc
         38 (swap! state update :density #(min 320 (+ % 20)))
         40 (swap! state update :density #(max 40 (- % 20)))
