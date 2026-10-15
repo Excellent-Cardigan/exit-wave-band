@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dead Channel — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #060810;
+      color: #8FFF6D;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Full-bleed shader background */
+    #bgShader {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* Custom cursor that disturbs the field */
+    #cursor {
+      position: fixed;
+      width: 24px;
+      height: 24px;
+      border: 1px solid rgba(143,255,109,0.6);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s linear;
+      mix-blend-mode: screen;
+    }
+    #cursor::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      background: rgba(143,255,109,0.3);
+      border-radius: 50%;
+    }
+
+    /* Content layer */
+    .content {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .dc-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 64px;
+      z-index: 20;
+    }
+    .dc-header-left {
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(143,255,109,0.5);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .dc-header-center {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(143,255,109,0.25);
+      letter-spacing: 0.15em;
+      font-family: var(--font-mono);
+    }
+    .dc-header-right {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(143,255,109,0.4);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* Hero: huge ghost text */
+    .hero-ghost {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 64px 160px;
+    }
+    .ghost-wordmark {
+      font-family: var(--font-condensed);
+      font-size: clamp(120px, 14vw, 200px);
+      font-weight: 700;
+      color: rgba(250,254,239,0.04);
+      letter-spacing: -0.03em;
+      line-height: 0.82;
+      text-transform: uppercase;
+      white-space: nowrap;
+      user-select: none;
+      pointer-events: none;
+      transition: color 0.3s;
+    }
+    .transmitting {
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(143,255,109,0.7);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      margin-top: 32px;
+    }
+    .transmitting-line {
+      width: 120px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(143,255,109,0.8), transparent);
+      margin: 16px auto 0;
+    }
+
+    /* Scroll-revealed content */
+    .scroll-reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Ghost releases */
+    .ghost-releases {
+      position: relative;
+      z-index: 10;
+      padding: 80px 64px 80px;
+      display: flex;
+      gap: 80px;
+    }
+    .ghost-release {
+      flex: 1;
+    }
+    .ghost-release-num {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(143,255,109,0.35);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .ghost-release-title {
+      font-family: var(--font-condensed);
+      font-size: clamp(28px, 3vw, 48px);
+      font-weight: 700;
+      color: rgba(250,254,239,0.2);
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      line-height: 0.9;
+      margin-bottom: 12px;
+    }
+    .ghost-release-meta {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.12);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .ghost-release-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ghost-btn-primary {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 16px 24px;
+      background: transparent;
+      border: 1px solid rgba(143,255,109,0.4);
+      color: rgba(143,255,109,0.8);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      max-width: 320px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .ghost-btn-primary:hover { background: rgba(143,255,109,0.08); border-color: rgba(143,255,109,0.8); }
+    .ghost-btn-secondary {
+      font-size: 11px;
+      font-weight: 300;
+      padding: 14px 24px;
+      background: transparent;
+      border: 1px solid rgba(250,254,239,0.1);
+      color: rgba(250,254,239,0.3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      max-width: 280px;
+      transition: border-color 0.2s;
+    }
+    .ghost-btn-secondary:hover { border-color: rgba(250,254,239,0.3); }
+
+    /* Members ghost strip */
+    .ghost-members {
+      position: relative;
+      z-index: 10;
+      padding: 40px 64px;
+      border-top: 1px solid rgba(143,255,109,0.08);
+      display: flex;
+      align-items: center;
+      gap: 40px;
+    }
+    .ghost-member {
+      font-family: var(--font-condensed);
+      font-size: 16px;
+      font-weight: 700;
+      color: rgba(250,254,239,0.1);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .ghost-member:hover { color: rgba(143,255,109,0.6); }
+    .ghost-members-label {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(143,255,109,0.2);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* Bottom bar */
+    .dc-bottom {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      border-top: 1px solid rgba(143,255,109,0.1);
+      background: rgba(6,8,16,0.85);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      padding: 0 64px;
+      gap: 40px;
+      z-index: 20;
+    }
+    .rec-dot {
+      font-size: 9px;
+      font-weight: 700;
+      color: rgba(143,255,109,0.8);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .rec-dot::before {
+      content: '●';
+      animation: blink 1.2s ease-in-out infinite;
+      margin-right: 6px;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+    .dc-bottom-members {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.2);
+      letter-spacing: 0.15em;
+    }
+    .dc-bottom-right {
+      margin-left: auto;
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(143,255,109,0.35);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div id="bgShader"></div>
+  <div id="cursor"></div>
+  <a class="direction-back" href="/index.html" style="color:#8FFF6D; z-index:30; position:fixed; top:20px; left:24px;">← DIRECTIONS</a>
+
+  <div class="content">
+    <!-- Header -->
+    <div class="dc-header">
+      <div class="dc-header-left">CH.00 — NO SIGNAL</div>
+      <div class="dc-header-center">▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒</div>
+      <div class="dc-header-right">SIGNAL LOST</div>
+    </div>
+
+    <!-- Ghost hero -->
+    <div class="hero-ghost">
+      <div class="ghost-wordmark" id="ghostWordmark">EXIT.WAVE</div>
+      <div class="transmitting">TRANSMITTING</div>
+      <div class="transmitting-line"></div>
+    </div>
+
+    <!-- Revealed content on scroll -->
+    <div class="ghost-releases scroll-reveal" id="revealReleases">
+      <div class="ghost-release">
+        <div class="ghost-release-num">SCROLL TO RECEIVE ↓ &nbsp;&nbsp; 001</div>
+        <div class="ghost-release-title">MOTH'S<br/>LAMENT</div>
+        <div class="ghost-release-meta">LP · SUBVERT.FM · STEMS AVAILABLE</div>
+        <div class="ghost-release-actions">
+          <button class="ghost-btn-primary">OWN ON SUBVERT.FM <span>↗</span></button>
+          <button class="ghost-btn-secondary">PLAY ▶</button>
+          <button class="ghost-btn-secondary">DOWNLOAD STEMS ↓</button>
+        </div>
+      </div>
+      <div class="ghost-release" style="opacity:0.5;">
+        <div class="ghost-release-num">INCOMING / JULY &nbsp;&nbsp; 002</div>
+        <div class="ghost-release-title">MOUNTING MTN<br/>CEMETERY</div>
+        <div class="ghost-release-meta">BAND LP · PRE-ORDER · SUBVERT.FM</div>
+        <div class="ghost-release-actions">
+          <button class="ghost-btn-primary" style="border-color:rgba(143,255,109,0.2); color:rgba(143,255,109,0.4);">PRE-ORDER ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="ghost-members scroll-reveal" id="revealMembers">
+      <div class="ghost-members-label">THE COLLECTIVE</div>
+      <div class="ghost-member">PURITY</div>
+      <div class="ghost-member">TOY</div>
+      <div class="ghost-member">CALM</div>
+      <div class="ghost-member">AER</div>
+      <div class="ghost-member">ZERO</div>
+    </div>
+  </div>
+
+  <!-- Fixed bottom bar -->
+  <div class="dc-bottom">
+    <div class="rec-dot">REC</div>
+    <div class="dc-bottom-members">PURITY · TOY · CALM · AER · ZERO</div>
+    <div class="dc-bottom-right">EXIT.WAVE / DEAD CHANNEL</div>
+  </div>
+
+  <script type="module" src="/src/dead-channel.ts"></script>
+</body>
+</html>

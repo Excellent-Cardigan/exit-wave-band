@@ -1,0 +1,47 @@
+@import url('https://use.typekit.net/emu5gzu.css');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font-display: 'ohno-fatface', 'Abril Fatface', serif;
+  --font-blaze: 'ohno-blazeface', 'Abril Fatface', serif;
+  --font-condensed: 'field-gothic', 'Barlow Condensed', sans-serif;
+  --font-mono: 'tchig-mono', 'IBM Plex Mono', monospace;
+  --radius: 0;
+}
+
+html, body { width: 100%; min-height: 100vh; }
+
+button, a { font-family: inherit; cursor: pointer; border: none; background: none; text-decoration: none; }
+button:focus-visible, a:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+.shader-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.shader-bg > canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
+/* Direction picker nav */
+.direction-back {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  z-index: 9999;
+  padding: 8px 14px;
+  border: 1px solid currentColor;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+  text-decoration: none;
+}
+.direction-back:hover { opacity: 1; }

@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #F5F4EE;
+      color: #2B2820;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+    }
+
+    /* Global grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 256px 256px;
+      opacity: 0.4;
+    }
+
+    .dir-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 64px;
+      border-bottom: 1px solid #2B2820;
+      position: sticky;
+      top: 0;
+      background: #F5F4EE;
+      z-index: 50;
+    }
+    .dir-header-left {
+      display: flex;
+      align-items: baseline;
+      gap: 28px;
+    }
+    .dir-wordmark {
+      font-size: 14px;
+      font-weight: 900;
+      color: #2B2820;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+    .dir-path {
+      font-size: 10px;
+      font-weight: 300;
+      color: #838B6A;
+      letter-spacing: 0.1em;
+    }
+    .dir-header-right {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .dir-nav-link {
+      font-size: 9px;
+      font-weight: 400;
+      color: #838B6A;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .dir-nav-link:hover { color: #2B2820; }
+    .dir-subvert {
+      font-size: 9px;
+      font-weight: 700;
+      color: #2B2820;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2B2820;
+      padding-bottom: 1px;
+      cursor: pointer;
+    }
+
+    .dir-body {
+      padding: 0 64px;
+    }
+
+    /* Column headers */
+    .dir-col-header {
+      display: flex;
+      align-items: center;
+      padding: 18px 0 10px;
+      border-bottom: 1px solid #2B2820;
+    }
+    .col-type  { width: 96px; flex-shrink: 0; }
+    .col-num   { width: 48px; flex-shrink: 0; }
+    .col-title { flex: 1; }
+    .col-format { width: 200px; flex-shrink: 0; }
+    .col-actions { width: 180px; text-align: right; flex-shrink: 0; }
+    .col-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #838B6A;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    /* Directory rows */
+    .dir-row {
+      display: flex;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid rgba(43,40,32,0.07);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.1s;
+    }
+    .dir-row::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.15s;
+      z-index: 0;
+      background: #BFFF00;
+    }
+    .dir-row:hover::before { opacity: 1; }
+    .dir-row > * { position: relative; z-index: 1; }
+
+    .dir-row .col-type-val {
+      font-size: 10px;
+      font-weight: 400;
+      color: #838B6A;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      width: 96px;
+      flex-shrink: 0;
+      transition: color 0.1s;
+    }
+    .dir-row:hover .col-type-val { color: #2B2820; }
+    .col-num-val {
+      font-size: 10px;
+      font-weight: 300;
+      color: #838B6A;
+      width: 48px;
+      flex-shrink: 0;
+    }
+    .dir-row:hover .col-num-val { color: #2B2820; }
+    .col-title-val {
+      font-size: 11px;
+      font-weight: 700;
+      color: #2B2820;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      flex: 1;
+    }
+    .col-title-val.muted { font-weight: 400; color: rgba(43,40,32,0.4); }
+    .col-format-val {
+      font-size: 10px;
+      font-weight: 300;
+      color: #838B6A;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      width: 200px;
+      flex-shrink: 0;
+    }
+    .dir-row:hover .col-format-val { color: #2B2820; }
+    .col-actions-val {
+      display: flex;
+      gap: 14px;
+      justify-content: flex-end;
+      width: 180px;
+      flex-shrink: 0;
+    }
+    .action-link {
+      font-size: 9px;
+      font-weight: 700;
+      color: #2B2820;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #2B2820;
+      padding-bottom: 1px;
+      cursor: pointer;
+      transition: opacity 0.1s;
+    }
+    .action-link.muted {
+      font-weight: 300;
+      border-color: rgba(43,40,32,0.35);
+      color: #838B6A;
+    }
+    .action-link.pending {
+      font-weight: 300;
+      border: none;
+      color: rgba(131,139,106,0.4);
+    }
+
+    /* Section dividers */
+    .dir-section {
+      display: flex;
+      align-items: center;
+      padding: 18px 0 8px;
+      border-bottom: 1px solid #2B2820;
+      margin-top: 4px;
+    }
+    .dir-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #838B6A;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+
+    /* Footer */
+    .dir-footer {
+      padding: 32px 64px;
+      border-top: 1px solid rgba(43,40,32,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 40px;
+    }
+    .dir-footer-left {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(43,40,32,0.3);
+      letter-spacing: 0.15em;
+    }
+    .dir-footer-right {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-link {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(43,40,32,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .footer-link:hover { color: #2B2820; }
+  </style>
+</head>
+<body>
+  <a class="direction-back" href="/index.html" style="color:#2B2820;">← DIRECTIONS</a>
+
+  <header class="dir-header">
+    <div class="dir-header-left">
+      <span class="dir-wordmark">EXIT.WAVE</span>
+      <span class="dir-path">./ TRANSMISSION ARCHIVE / INDEX.TXT</span>
+    </div>
+    <div class="dir-header-right">
+      <span class="dir-nav-link">HARLEM NY / W. MASS</span>
+      <span class="dir-subvert">SUBVERT.FM ↗</span>
+    </div>
+  </header>
+
+  <main class="dir-body">
+
+    <!-- Column headers -->
+    <div class="dir-col-header">
+      <span class="col-label col-type">TYPE</span>
+      <span class="col-label col-num">#</span>
+      <span class="col-label col-title">TITLE</span>
+      <span class="col-label col-format">FORMAT / STATUS</span>
+      <span class="col-label col-actions">ACTIONS</span>
+    </div>
+
+    <!-- RELEASES section -->
+    <div class="dir-section">
+      <span class="dir-section-label">— RELEASES ——————————————————————————————————————————————————</span>
+    </div>
+
+    <div class="dir-row">
+      <span class="col-type-val">RELEASE</span>
+      <span class="col-num-val">001</span>
+      <span class="col-title-val">MOTH'S LAMENT</span>
+      <span class="col-format-val">LP · SOLO · NOW</span>
+      <div class="col-actions-val">
+        <span class="action-link">BUY ↗</span>
+        <span class="action-link muted">STEMS ↓</span>
+      </div>
+    </div>
+
+    <div class="dir-row">
+      <span class="col-type-val">RELEASE</span>
+      <span class="col-num-val">002</span>
+      <span class="col-title-val">MOUNTING MOUNTAIN CEMETERY</span>
+      <span class="col-format-val">LP · BAND · JULY</span>
+      <div class="col-actions-val">
+        <span class="action-link">PRE-ORDER ↗</span>
+      </div>
+    </div>
+
+    <!-- MEMBERS section -->
+    <div class="dir-section">
+      <span class="dir-section-label">— MEMBERS ———————————————————————————————————————————————————</span>
+    </div>
+
+    <div class="dir-row">
+      <span class="col-type-val">MEMBER</span>
+      <span class="col-num-val">001</span>
+      <span class="col-title-val">PURITY / BOBBY D.</span>
+      <span class="col-format-val">COMPOSER · PRODUCER</span>
+      <div class="col-actions-val">
+        <span class="action-link muted" style="font-size:9px; font-weight:300; border:none;">GUITAR · SAMPLER</span>
+      </div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">MEMBER</span>
+      <span class="col-num-val">002</span>
+      <span class="col-title-val">TOY / TONY</span>
+      <span class="col-format-val">VOCALS</span>
+      <div class="col-actions-val"></div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">MEMBER</span>
+      <span class="col-num-val">003</span>
+      <span class="col-title-val">CALM / THOM</span>
+      <span class="col-format-val">DRUMS</span>
+      <div class="col-actions-val"></div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">MEMBER</span>
+      <span class="col-num-val">004</span>
+      <span class="col-title-val">AER / AARON</span>
+      <span class="col-format-val">COMPOSER · PRODUCER</span>
+      <div class="col-actions-val">
+        <span class="action-link muted" style="font-size:9px; font-weight:300; border:none;">MODULAR SYNTH</span>
+      </div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">MEMBER</span>
+      <span class="col-num-val">005</span>
+      <span class="col-title-val">ZERO / JOHN</span>
+      <span class="col-format-val">BASS</span>
+      <div class="col-actions-val"></div>
+    </div>
+
+    <!-- STEMS section -->
+    <div class="dir-section">
+      <span class="dir-section-label">— STEMS —————————————————————————————————————————————————————</span>
+    </div>
+
+    <div class="dir-row">
+      <span class="col-type-val">STEMS</span>
+      <span class="col-num-val">001</span>
+      <span class="col-title-val">MOTH'S LAMENT — STEM PACK</span>
+      <span class="col-format-val">.ZIP · AVAILABLE</span>
+      <div class="col-actions-val">
+        <span class="action-link">↓ DOWNLOAD</span>
+      </div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">STEMS</span>
+      <span class="col-num-val">002</span>
+      <span class="col-title-val muted">MOUNTING MTN CEMETERY — STEMS</span>
+      <span class="col-format-val" style="color:rgba(131,139,106,0.5);">.ZIP · PENDING</span>
+      <div class="col-actions-val">
+        <span class="action-link pending">JULY</span>
+      </div>
+    </div>
+
+    <!-- DISPATCHES section -->
+    <div class="dir-section">
+      <span class="dir-section-label">— DISPATCHES ————————————————————————————————————————————————</span>
+    </div>
+
+    <div class="dir-row">
+      <span class="col-type-val">POST</span>
+      <span class="col-num-val">001</span>
+      <span class="col-title-val">SIGNAL / NOISE</span>
+      <span class="col-format-val">PURITY · 2024.11</span>
+      <div class="col-actions-val">
+        <span class="action-link muted">→ READ</span>
+      </div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">POST</span>
+      <span class="col-num-val">002</span>
+      <span class="col-title-val">ON THE WAVE</span>
+      <span class="col-format-val">TOY · 2024.09</span>
+      <div class="col-actions-val">
+        <span class="action-link muted">→ READ</span>
+      </div>
+    </div>
+    <div class="dir-row">
+      <span class="col-type-val">POST</span>
+      <span class="col-num-val">003</span>
+      <span class="col-title-val">FIELD RECORDINGS / HARLEM 7PM</span>
+      <span class="col-format-val">AER · 2024.07</span>
+      <div class="col-actions-val">
+        <span class="action-link muted">→ READ</span>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="dir-footer">
+    <div class="dir-footer-left">EXIT.WAVE · HARLEM NY / WESTERN MASSACHUSETTS · 2024</div>
+    <div class="dir-footer-right">
+      <span class="footer-link">EPK</span>
+      <span class="footer-link">BOOKING</span>
+      <span class="footer-link">CONTACT</span>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/index-dir.ts"></script>
+</body>
+</html>

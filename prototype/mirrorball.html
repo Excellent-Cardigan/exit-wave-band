@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mirrorball — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      background: #060608;
+      color: #C0C0C0;
+      font-family: var(--font-mono);
+      position: relative;
+    }
+
+    /* Mesh gradient background shader */
+    #bgShader {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* Three.js mirrorball canvas */
+    #mirrorballCanvas {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 420px;
+      height: 420px;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    /* Main content layer */
+    .mb-content {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 64px 80px;
+      pointer-events: none;
+    }
+    .mb-content > * { pointer-events: auto; }
+
+    /* Label */
+    .mb-label {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(192,192,192,0.35);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+
+    /* Title */
+    .mb-title {
+      font-family: var(--font-blaze);
+      font-size: clamp(72px, 9vw, 126px);
+      font-weight: 800;
+      color: #C0C0C0;
+      line-height: 0.82;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    /* Iridescent underline */
+    .mb-underline {
+      height: 3px;
+      width: min(520px, 60vw);
+      background: linear-gradient(to right, #C7FF1D, rgba(180,80,220,0.9), rgba(0,220,255,0.7), rgba(255,80,120,0.6), #C7FF1D);
+      margin-bottom: 28px;
+    }
+
+    /* Meta */
+    .mb-meta {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      margin-bottom: 36px;
+    }
+    .mb-meta-item {
+      font-size: 10px;
+      font-weight: 400;
+      color: rgba(192,192,192,0.45);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .mb-meta-sep {
+      width: 1px;
+      height: 14px;
+      background: rgba(192,192,192,0.18);
+    }
+    .mb-meta-live {
+      font-size: 10px;
+      font-weight: 400;
+      color: #C7FF1D;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .mb-meta-live::before {
+      content: '●';
+      animation: livepulse 1.4s ease-in-out infinite;
+      margin-right: 6px;
+    }
+    @keyframes livepulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+    /* Actions */
+    .mb-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-mb-play {
+      font-size: 13px;
+      font-weight: 900;
+      padding: 20px 36px;
+      background: #C7FF1D;
+      color: #060608;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+    .btn-mb-play:hover { background: #D9FF55; transform: scale(1.02); }
+    .btn-mb-buy {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 20px 28px;
+      background: transparent;
+      border: 1px solid rgba(192,192,192,0.25);
+      color: #C0C0C0;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-mb-buy:hover { border-color: rgba(192,192,192,0.6); }
+    .btn-mb-stems {
+      font-size: 12px;
+      font-weight: 400;
+      padding: 20px 24px;
+      background: transparent;
+      border: 1px solid rgba(192,192,192,0.1);
+      color: rgba(192,192,192,0.35);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-mb-stems:hover { border-color: rgba(192,192,192,0.3); }
+
+    /* Collective dots (top) */
+    .mb-top-bar {
+      position: fixed;
+      top: 32px;
+      left: 64px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      z-index: 15;
+    }
+    .mb-circle-name {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(192,192,192,0.22);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      cursor: default;
+    }
+    .mb-circle-name:hover { color: rgba(192,192,192,0.6); }
+
+    /* Chrome smear line (cursor reactive, JS-driven) */
+    #chromeSmear {
+      position: fixed;
+      left: 0;
+      right: 0;
+      height: 1px;
+      top: 38%;
+      background: linear-gradient(to right, transparent 0%, rgba(192,192,192,0.08) 15%, rgba(192,192,192,0.45) var(--smear-center, 40%), rgba(220,190,255,0.6) var(--smear-peak, 50%), rgba(192,192,192,0.45) var(--smear-end, 60%), rgba(192,192,192,0.08) 85%, transparent 100%);
+      pointer-events: none;
+      z-index: 8;
+      transition: top 0.4s ease;
+    }
+
+    /* Marquee */
+    #marquee {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 52px;
+      border-top: 1px solid rgba(192,192,192,0.08);
+      background: rgba(6,6,8,0.9);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      z-index: 20;
+    }
+    .marquee-track {
+      display: flex;
+      gap: 0;
+      white-space: nowrap;
+      animation: marquee-scroll 28s linear infinite;
+      font-family: var(--font-condensed);
+      font-size: 17px;
+      font-weight: 700;
+      color: rgba(192,192,192,0.2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    @keyframes marquee-scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    .marquee-track:hover { animation-play-state: paused; }
+  </style>
+</head>
+<body>
+  <div id="bgShader"></div>
+  <canvas id="mirrorballCanvas"></canvas>
+  <div id="chromeSmear"></div>
+  <a class="direction-back" href="/index.html" style="color:rgba(192,192,192,0.4); z-index:30;">← DIRECTIONS</a>
+
+  <!-- Top collective bar -->
+  <div class="mb-top-bar">
+    <span class="mb-circle-name">PURITY</span>
+    <span class="mb-circle-name">TOY</span>
+    <span class="mb-circle-name">CALM</span>
+    <span class="mb-circle-name">AER</span>
+    <span class="mb-circle-name">ZERO</span>
+  </div>
+
+  <!-- Main content -->
+  <div class="mb-content">
+    <div class="mb-label">EXIT.WAVE — LATEST / SUBVERT.FM</div>
+    <div class="mb-title">MOTH'S<br/>LAMENT</div>
+    <div class="mb-underline"></div>
+    <div class="mb-meta">
+      <span class="mb-meta-item">LP · SOLO RECORD</span>
+      <div class="mb-meta-sep"></div>
+      <span class="mb-meta-item">8 TRACKS</span>
+      <div class="mb-meta-sep"></div>
+      <span class="mb-meta-live">NOW PLAYING</span>
+    </div>
+    <div class="mb-actions">
+      <button class="btn-mb-play">▶ PLAY NOW</button>
+      <button class="btn-mb-buy">OWN ON SUBVERT.FM ↗</button>
+      <button class="btn-mb-stems">STEMS ↓</button>
+    </div>
+  </div>
+
+  <!-- Marquee -->
+  <div id="marquee">
+    <div class="marquee-track">
+      EXIT.WAVE &nbsp;·&nbsp; MOTH'S LAMENT &nbsp;·&nbsp; MOUNTING MOUNTAIN CEMETERY &nbsp;·&nbsp; SUBVERT.FM &nbsp;·&nbsp; STEMS AVAILABLE &nbsp;·&nbsp; PURITY &nbsp;·&nbsp; TOY &nbsp;·&nbsp; CALM &nbsp;·&nbsp; AER &nbsp;·&nbsp; ZERO &nbsp;·&nbsp;&nbsp;
+      EXIT.WAVE &nbsp;·&nbsp; MOTH'S LAMENT &nbsp;·&nbsp; MOUNTING MOUNTAIN CEMETERY &nbsp;·&nbsp; SUBVERT.FM &nbsp;·&nbsp; STEMS AVAILABLE &nbsp;·&nbsp; PURITY &nbsp;·&nbsp; TOY &nbsp;·&nbsp; CALM &nbsp;·&nbsp; AER &nbsp;·&nbsp; ZERO &nbsp;·&nbsp;&nbsp;
+    </div>
+  </div>
+
+  <script type="module" src="/src/mirrorball.ts"></script>
+</body>
+</html>

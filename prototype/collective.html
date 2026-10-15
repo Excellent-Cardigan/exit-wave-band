@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collective — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #1A1512;
+      color: #C9B99A;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .coll-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 64px;
+      border-bottom: 1px solid rgba(201,185,154,0.1);
+      flex-shrink: 0;
+    }
+    .coll-logo {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 610;
+      color: #C9B99A;
+      letter-spacing: 0.02em;
+    }
+    .coll-tagline {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.3);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .coll-nav {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+    }
+    .coll-nav-link {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.3);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+    .coll-nav-link:hover { color: rgba(201,185,154,0.7); }
+    .coll-subvert {
+      font-size: 9px;
+      font-weight: 700;
+      color: #7B3F2D;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border: 1px solid rgba(123,63,45,0.5);
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .coll-subvert:hover { background: rgba(123,63,45,0.15); }
+
+    /* Editorial hero: left info + right portrait */
+    .editorial-hero {
+      display: flex;
+      flex: 1;
+      min-height: calc(100vh - 73px - 96px);
+    }
+
+    /* Left: member info */
+    .member-info {
+      width: 480px;
+      flex-shrink: 0;
+      padding: 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      border-right: 1px solid rgba(201,185,154,0.07);
+    }
+    .member-num {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.28);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .member-circle-name {
+      font-family: var(--font-display);
+      font-size: 120px;
+      font-weight: 610;
+      color: #C9B99A;
+      line-height: 0.85;
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      transition: color 0.3s;
+    }
+    .member-divider {
+      width: 40px;
+      height: 1px;
+      background: rgba(123,63,45,0.5);
+      margin-bottom: 22px;
+    }
+    .member-role {
+      font-family: var(--font-condensed);
+      font-size: 12px;
+      font-weight: 700;
+      color: rgba(201,185,154,0.45);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .member-bio {
+      font-size: 13px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.55);
+      line-height: 22px;
+      letter-spacing: 0.02em;
+      max-width: 300px;
+      margin-bottom: 32px;
+      font-style: italic;
+    }
+    .member-nav {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .member-nav-item {
+      font-family: var(--font-condensed);
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(201,185,154,0.2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.2s;
+      padding-bottom: 2px;
+    }
+    .member-nav-item.active {
+      color: #C9B99A;
+      border-bottom: 1px solid rgba(201,185,154,0.35);
+    }
+    .member-nav-item:hover { color: rgba(201,185,154,0.7); }
+
+    /* Right: portrait + shader */
+    .portrait-area {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(160deg, #2A2015 0%, #3D2E1A 40%, #1A1512 100%);
+    }
+    .portrait-shader {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+    .portrait-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+    }
+    .portrait-box {
+      width: 260px;
+      height: 340px;
+      border: 1px solid rgba(201,185,154,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      transition: border-color 0.4s;
+    }
+    .portrait-area:hover .portrait-box { border-color: rgba(201,185,154,0.3); }
+    .portrait-placeholder-text {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.18);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+    .portrait-name-overlay {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      font-family: var(--font-condensed);
+      font-size: 64px;
+      font-weight: 700;
+      color: rgba(201,185,154,0.08);
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .portrait-oxblood {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to top, rgba(123,63,45,0.12), transparent);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* Release strip */
+    .release-strip {
+      display: flex;
+      align-items: center;
+      padding: 24px 64px;
+      border-top: 1px solid rgba(201,185,154,0.07);
+      gap: 40px;
+      flex-shrink: 0;
+    }
+    .release-strip-label {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.22);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+      width: 70px;
+    }
+    .release-strip-items {
+      display: flex;
+      gap: 28px;
+      align-items: center;
+      flex: 1;
+    }
+    .release-strip-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .release-strip-title {
+      font-family: var(--font-condensed);
+      font-size: 15px;
+      font-weight: 700;
+      color: #C9B99A;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .release-strip-meta {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(201,185,154,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .release-strip-sep {
+      width: 1px;
+      height: 28px;
+      background: rgba(201,185,154,0.1);
+      flex-shrink: 0;
+    }
+    .release-strip-cta {
+      font-size: 10px;
+      font-weight: 700;
+      color: #7B3F2D;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(123,63,45,0.4);
+      padding-bottom: 1px;
+      margin-left: auto;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <a class="direction-back" href="/index.html" style="color:#C9B99A;">← DIRECTIONS</a>
+
+  <header class="coll-header">
+    <div style="display:flex; align-items:baseline; gap:20px;">
+      <span class="coll-logo">EXIT.WAVE</span>
+      <span class="coll-tagline">— THE COLLECTIVE</span>
+    </div>
+    <nav class="coll-nav">
+      <span class="coll-nav-link">RELEASES</span>
+      <span class="coll-nav-link">BLOG</span>
+      <span class="coll-subvert">SUBVERT.FM ↗</span>
+    </nav>
+  </header>
+
+  <div class="editorial-hero">
+    <!-- Left: member info panel -->
+    <div class="member-info">
+      <div class="member-num">MEMBER · <span id="memberNum">002</span> / 005</div>
+      <div class="member-circle-name" id="memberName">TOY</div>
+      <div class="member-divider"></div>
+      <div class="member-role" id="memberRole">VOCALS</div>
+      <div class="member-bio" id="memberBio">"The voice at the edge of transmission. Where the signal breaks, he begins."</div>
+      <div class="member-nav" id="memberNav">
+        <span class="member-nav-item" data-idx="0">PURITY</span>
+        <span class="member-nav-item active" data-idx="1">TOY</span>
+        <span class="member-nav-item" data-idx="2">CALM</span>
+        <span class="member-nav-item" data-idx="3">AER</span>
+        <span class="member-nav-item" data-idx="4">ZERO</span>
+      </div>
+    </div>
+
+    <!-- Right: portrait area with halftone shader -->
+    <div class="portrait-area" id="portraitArea">
+      <div class="portrait-shader" id="portraitShader"></div>
+      <div class="portrait-placeholder">
+        <div class="portrait-box">
+          <div class="portrait-placeholder-text">PORTRAIT<br/>HALFTONE</div>
+        </div>
+      </div>
+      <div class="portrait-name-overlay" id="portraitBgName">TOY</div>
+      <div class="portrait-oxblood"></div>
+    </div>
+  </div>
+
+  <!-- Release strip -->
+  <div class="release-strip">
+    <div class="release-strip-label">MUSIC</div>
+    <div class="release-strip-items">
+      <div class="release-strip-item">
+        <div class="release-strip-title">MOTH'S LAMENT</div>
+        <div class="release-strip-meta">LP · SOLO · AVAILABLE NOW</div>
+      </div>
+      <div class="release-strip-sep"></div>
+      <div class="release-strip-item" style="opacity:0.55;">
+        <div class="release-strip-title">MOUNTING MTN CEMETERY</div>
+        <div class="release-strip-meta">BAND LP · OUT JULY · PRE-ORDER</div>
+      </div>
+    </div>
+    <div class="release-strip-cta">OWN ON SUBVERT.FM ↗</div>
+  </div>
+
+  <script type="module" src="/src/collective.ts"></script>
+</body>
+</html>

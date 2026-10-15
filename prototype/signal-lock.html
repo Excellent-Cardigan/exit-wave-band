@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Lock — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #0A0A0C;
+      color: #FAFEEF;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* === HERO === */
+    .hero {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Left: cover panel */
+    .cover-panel {
+      width: 58%;
+      height: 100%;
+      background: #0E0E11;
+      position: relative;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .cover-shader {
+      position: absolute;
+      inset: 0;
+    }
+    .cover-art {
+      position: relative;
+      z-index: 2;
+      width: 420px;
+      height: 420px;
+      border: 1px solid rgba(191,255,0,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
+      opacity: 0;
+      transition: opacity 1.8s ease 0.5s;
+    }
+    .cover-art.revealed { opacity: 1; }
+    .cover-art-label {
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(191,255,0,0.5);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+    }
+    .cover-art-sub {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.2);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .signal-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(191,255,0,0.5) 20%, rgba(191,255,0,0.5) 80%, transparent);
+      z-index: 3;
+      pointer-events: none;
+      transform: scaleX(0);
+      transition: transform 1.2s ease 1.5s;
+    }
+    .signal-line.revealed { transform: scaleX(1); }
+    .sig-lock-label {
+      position: absolute;
+      top: 28px;
+      left: 36px;
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(191,255,0,0.5);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      z-index: 4;
+    }
+    .sig-lock-id {
+      position: absolute;
+      bottom: 28px;
+      right: 36px;
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.15);
+      letter-spacing: 0.1em;
+      z-index: 4;
+    }
+
+    /* Right: info column */
+    .info-col {
+      flex: 1;
+      padding: 72px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px solid rgba(250,254,239,0.05);
+    }
+    .release-label {
+      font-size: 10px;
+      font-weight: 400;
+      color: rgba(191,255,0,0.8);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s ease 1s, transform 0.6s ease 1s;
+    }
+    .release-label.in { opacity: 1; transform: translateY(0); }
+    .release-title {
+      font-family: var(--font-blaze);
+      font-size: 88px;
+      font-weight: 800;
+      color: #FAFEEF;
+      line-height: 0.87;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease 1.2s, transform 0.8s ease 1.2s;
+    }
+    .release-title.in { opacity: 1; transform: translateY(0); }
+    .release-meta {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-bottom: 44px;
+      padding-bottom: 36px;
+      border-bottom: 1px solid rgba(250,254,239,0.07);
+      opacity: 0;
+      transition: opacity 0.6s ease 1.4s;
+    }
+    .release-meta.in { opacity: 1; }
+    .release-meta span { font-size: 11px; font-weight: 300; color: rgba(250,254,239,0.3); letter-spacing: 0.1em; text-transform: uppercase; }
+    .release-meta .sep { width: 1px; height: 12px; background: rgba(250,254,239,0.12); }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: opacity 0.6s ease 1.6s, transform 0.6s ease 1.6s;
+    }
+    .actions.in { opacity: 1; transform: translateY(0); }
+    .btn-play {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 18px 24px;
+      background: #BFFF00;
+      color: #0A0A0C;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-play:hover { background: #D4FF33; }
+    .btn-buy {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 18px 24px;
+      background: transparent;
+      border: 1px solid #BFFF00;
+      color: #BFFF00;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-buy:hover { background: rgba(191,255,0,0.08); }
+    .btn-stems {
+      font-size: 12px;
+      font-weight: 400;
+      padding: 18px 24px;
+      background: transparent;
+      border: 1px solid rgba(250,254,239,0.15);
+      color: rgba(250,254,239,0.5);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .btn-stems:hover { border-color: rgba(250,254,239,0.3); color: rgba(250,254,239,0.8); }
+    .dsp-row {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.18);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* === BELOW FOLD === */
+    .below-fold {
+      border-top: 1px solid rgba(250,254,239,0.07);
+      flex-shrink: 0;
+    }
+    .upcoming-row {
+      display: flex;
+      align-items: center;
+      padding: 26px 80px;
+      border-bottom: 1px solid rgba(250,254,239,0.05);
+      gap: 0;
+    }
+    .upcoming-label {
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(191,255,0,0.6);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      width: 110px;
+      flex-shrink: 0;
+    }
+    .upcoming-sep { width: 1px; height: 20px; background: rgba(250,254,239,0.1); margin-right: 36px; flex-shrink: 0; }
+    .upcoming-title {
+      font-family: var(--font-blaze);
+      font-size: 26px;
+      font-weight: 600;
+      color: #FAFEEF;
+      letter-spacing: -0.01em;
+      flex: 1;
+    }
+    .upcoming-status {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.3);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-right: 36px;
+    }
+    .upcoming-cta {
+      font-size: 10px;
+      font-weight: 700;
+      color: #BFFF00;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .collective-strip {
+      display: flex;
+      align-items: center;
+      padding: 22px 80px;
+      gap: 0;
+    }
+    .collective-label {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.18);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      width: 110px;
+      flex-shrink: 0;
+    }
+    .collective-sep { width: 1px; height: 20px; background: rgba(250,254,239,0.07); margin-right: 36px; flex-shrink: 0; }
+    .members {
+      display: flex;
+      gap: 40px;
+      flex: 1;
+    }
+    .member-name {
+      font-family: var(--font-condensed);
+      font-size: 20px;
+      font-weight: 700;
+      color: #FAFEEF;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .location {
+      margin-left: auto;
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.18);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <a class="direction-back" href="/index.html" style="color:#FAFEEF;">← DIRECTIONS</a>
+
+  <section class="hero">
+    <!-- Cover panel with dithering shader -->
+    <div class="cover-panel" id="coverPanel">
+      <div class="cover-shader" id="coverShader"></div>
+      <div class="signal-line" id="signalLine"></div>
+      <div class="sig-lock-label">SIG/LOCK ■</div>
+      <div class="sig-lock-id">001 / EXIT.WAVE / 2024</div>
+      <div class="cover-art" id="coverArt">
+        <div class="cover-art-label">MOTH'S LAMENT</div>
+        <div class="cover-art-sub">COVER ART</div>
+      </div>
+    </div>
+
+    <!-- Info column -->
+    <div class="info-col">
+      <div class="release-label" id="releaseLabel">EXIT.WAVE — SOLO RELEASE</div>
+      <div class="release-title" id="releaseTitle">MOTH'S<br/>LAMENT</div>
+      <div class="release-meta" id="releaseMeta">
+        <span>LP</span>
+        <div class="sep"></div>
+        <span>8 TRACKS</span>
+        <div class="sep"></div>
+        <span>AVAILABLE NOW</span>
+      </div>
+      <div class="actions" id="actions">
+        <button class="btn-play">▶&nbsp; PLAY — MOTH'S LAMENT</button>
+        <button class="btn-buy">OWN ON SUBVERT.FM <span>↗</span></button>
+        <button class="btn-stems">DOWNLOAD STEMS <span>↓</span></button>
+      </div>
+      <div class="dsp-row">ALSO STREAMING: TIDAL · APPLE MUSIC · SPOTIFY</div>
+    </div>
+  </section>
+
+  <!-- Below fold -->
+  <div class="below-fold">
+    <div class="upcoming-row">
+      <div class="upcoming-label">UPCOMING</div>
+      <div class="upcoming-sep"></div>
+      <div class="upcoming-title">MOUNTING MOUNTAIN CEMETERY</div>
+      <div class="upcoming-status">BAND LP · OUT JULY</div>
+      <div class="upcoming-cta">PRE-ORDER ↗</div>
+    </div>
+    <div class="collective-strip">
+      <div class="collective-label">THE COLLECTIVE</div>
+      <div class="collective-sep"></div>
+      <div class="members">
+        <span class="member-name">PURITY</span>
+        <span class="member-name">TOY</span>
+        <span class="member-name">CALM</span>
+        <span class="member-name">AER</span>
+        <span class="member-name">ZERO</span>
+      </div>
+      <div class="location">EXIT.WAVE · HARLEM NY / W. MASS</div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/signal-lock.ts"></script>
+</body>
+</html>

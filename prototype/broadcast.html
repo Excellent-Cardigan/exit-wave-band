@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Broadcast — Exit.Wave</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #0A0A0C;
+      color: #FAFEEF;
+      font-family: var(--font-mono);
+      overflow-x: hidden;
+    }
+
+    /* Fixed minimal nav */
+    .bc-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 64px;
+      z-index: 50;
+      mix-blend-mode: normal;
+    }
+    .bc-nav-logo {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(250,254,239,0.5);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .bc-nav-subvert {
+      font-size: 10px;
+      font-weight: 700;
+      color: #C7FF1D;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #C7FF1D;
+      padding-bottom: 1px;
+      cursor: pointer;
+    }
+
+    /* Section: Hero — void world */
+    .section-hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 0 64px 72px;
+      overflow: hidden;
+    }
+    .section-shader {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+    .section-content {
+      position: relative;
+      z-index: 10;
+    }
+    .bc-chapter {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(199,255,29,0.6);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .bc-headline {
+      font-family: var(--font-blaze);
+      font-size: clamp(80px, 10.5vw, 152px);
+      font-weight: 800;
+      line-height: 0.82;
+      letter-spacing: -0.03em;
+      text-transform: uppercase;
+    }
+    .bc-scroll-cue {
+      position: absolute;
+      bottom: 28px;
+      right: 64px;
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.25);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    /* Section: Release — forest world */
+    .section-release {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 80px 64px;
+      overflow: hidden;
+    }
+    .release-left {
+      width: 420px;
+      flex-shrink: 0;
+      z-index: 10;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .release-num {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(199,255,29,0.45);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .release-title {
+      font-family: var(--font-blaze);
+      font-size: 72px;
+      font-weight: 800;
+      color: #C7FF1D;
+      line-height: 0.85;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+    .release-meta-bc {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(199,255,29,0.45);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .release-actions-bc {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .btn-bc-primary {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 18px 24px;
+      background: #C7FF1D;
+      color: #0A0A0C;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-bc-primary:hover { background: #D4FF44; }
+    .btn-bc-secondary {
+      font-size: 12px;
+      font-weight: 400;
+      padding: 18px 24px;
+      background: transparent;
+      border: 1px solid rgba(199,255,29,0.3);
+      color: rgba(199,255,29,0.6);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .btn-bc-secondary:hover { border-color: rgba(199,255,29,0.7); }
+    .release-right {
+      flex: 1;
+      z-index: 10;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-left: 80px;
+    }
+    .release-cover-bc {
+      width: 340px;
+      height: 340px;
+      border: 1px solid rgba(199,255,29,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .release-cover-label {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(199,255,29,0.2);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    /* Section: Upcoming */
+    .section-upcoming {
+      position: relative;
+      padding: 80px 64px;
+      border-top: 1px solid rgba(250,254,239,0.06);
+      overflow: hidden;
+    }
+    .upcoming-bc-num {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.25);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    .upcoming-bc-title {
+      font-family: var(--font-blaze);
+      font-size: clamp(40px, 5vw, 72px);
+      font-weight: 800;
+      color: #FAFEEF;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .upcoming-bc-meta {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+    .btn-upcoming {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 16px 24px;
+      border: 1px solid rgba(250,254,239,0.2);
+      color: rgba(250,254,239,0.6);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.15s;
+    }
+    .btn-upcoming:hover { border-color: rgba(250,254,239,0.5); }
+
+    /* Section: Members */
+    .section-members {
+      position: relative;
+      padding: 80px 64px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+      overflow: hidden;
+    }
+    .member-bc-card {
+      padding: 32px 24px;
+      border: 1px solid rgba(250,254,239,0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .member-bc-card:hover { background: rgba(250,254,239,0.03); }
+    .member-bc-circle {
+      font-family: var(--font-condensed);
+      font-size: 24px;
+      font-weight: 700;
+      color: #FAFEEF;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .member-bc-real {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.3);
+      letter-spacing: 0.1em;
+    }
+    .member-bc-role {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.2);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: auto;
+    }
+
+    /* Footer */
+    .bc-footer {
+      padding: 48px 64px;
+      border-top: 1px solid rgba(250,254,239,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bc-footer-logo {
+      font-family: var(--font-blaze);
+      font-size: 32px;
+      font-weight: 800;
+      color: rgba(250,254,239,0.15);
+    }
+    .bc-footer-links {
+      display: flex;
+      gap: 24px;
+    }
+    .bc-footer-link {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.25);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    /* Scroll-driven opacity reveals */
+    .bc-reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s ease, transform 0.9s ease;
+    }
+    .bc-reveal.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+  <a class="direction-back" href="/index.html" style="color:rgba(250,254,239,0.4);">← DIRECTIONS</a>
+
+  <nav class="bc-nav">
+    <span class="bc-nav-logo">EXIT.WAVE</span>
+    <span class="bc-nav-subvert">SUBVERT.FM ↗</span>
+  </nav>
+
+  <!-- Section 1: Hero — void world -->
+  <section class="section-hero" id="heroSection">
+    <div class="section-shader" id="heroShader"></div>
+    <div class="section-content">
+      <div class="bc-chapter">BROADCAST / EXIT.WAVE / 001</div>
+      <div class="bc-headline">EXIT.<br/>WAVE</div>
+    </div>
+    <div class="bc-scroll-cue">SCROLL ↓</div>
+  </section>
+
+  <!-- Section 2: Latest release — forest world -->
+  <section class="section-release" id="releaseSection">
+    <div class="section-shader" id="releaseShader"></div>
+    <div class="release-left bc-reveal">
+      <div class="release-num">002 / LATEST RELEASE</div>
+      <div class="release-title">MOTH'S<br/>LAMENT</div>
+      <div class="release-meta-bc">LP · SOLO · AVAILABLE NOW</div>
+      <div class="release-actions-bc">
+        <button class="btn-bc-primary">OWN ON SUBVERT.FM <span>↗</span></button>
+        <button class="btn-bc-secondary">DOWNLOAD STEMS <span>↓</span></button>
+        <button class="btn-bc-secondary">▶ PLAY</button>
+      </div>
+    </div>
+    <div class="release-right bc-reveal" style="transition-delay:0.2s;">
+      <div class="release-cover-bc">
+        <div class="release-cover-label">COVER ART<br/>MESH SHADER</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Upcoming -->
+  <section class="section-upcoming" id="upcomingSection">
+    <div class="bc-reveal">
+      <div class="upcoming-bc-num">003 / UPCOMING</div>
+      <div class="upcoming-bc-title">MOUNTING<br/>MOUNTAIN<br/>CEMETERY</div>
+      <div class="upcoming-bc-meta">BAND FULL-LENGTH · OUT JULY 2025</div>
+      <button class="btn-upcoming">PRE-ORDER ON SUBVERT.FM ↗</button>
+    </div>
+  </section>
+
+  <!-- Section 4: Members -->
+  <section class="section-members" id="membersSection">
+    <div class="member-bc-card bc-reveal">
+      <div class="member-bc-circle">PURITY</div>
+      <div class="member-bc-real">Bobby D.</div>
+      <div class="member-bc-role">Composer · Producer · Guitar</div>
+    </div>
+    <div class="member-bc-card bc-reveal" style="transition-delay:0.1s;">
+      <div class="member-bc-circle">TOY</div>
+      <div class="member-bc-real">Tony</div>
+      <div class="member-bc-role">Vocals</div>
+    </div>
+    <div class="member-bc-card bc-reveal" style="transition-delay:0.2s;">
+      <div class="member-bc-circle">CALM</div>
+      <div class="member-bc-real">Thom</div>
+      <div class="member-bc-role">Drums</div>
+    </div>
+    <div class="member-bc-card bc-reveal" style="transition-delay:0.3s;">
+      <div class="member-bc-circle">AER</div>
+      <div class="member-bc-real">Aaron</div>
+      <div class="member-bc-role">Composer · Modular Synth</div>
+    </div>
+    <div class="member-bc-card bc-reveal" style="transition-delay:0.4s;">
+      <div class="member-bc-circle">ZERO</div>
+      <div class="member-bc-real">John</div>
+      <div class="member-bc-role">Bass</div>
+    </div>
+  </section>
+
+  <footer class="bc-footer">
+    <div class="bc-footer-logo">EW</div>
+    <div class="bc-footer-links">
+      <span class="bc-footer-link">EPK</span>
+      <span class="bc-footer-link">BOOKING</span>
+      <span class="bc-footer-link">CONTACT</span>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/broadcast.ts"></script>
+</body>
+</html>

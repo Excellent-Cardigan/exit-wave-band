@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Exit.Wave — Homepage Directions</title>
+  <link rel="stylesheet" href="/styles/base.css" />
+  <style>
+    body {
+      background: #0A0A0C;
+      color: #FAFEEF;
+      font-family: var(--font-mono);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 80px 64px;
+    }
+    .header {
+      font-family: var(--font-condensed);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(250,254,239,0.3);
+      margin-bottom: 64px;
+    }
+    h1 {
+      font-family: var(--font-blaze);
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+      color: #FAFEEF;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      font-size: 11px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.3);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 72px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 36px 32px;
+      border: 1px solid rgba(250,254,239,0.06);
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s, border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .card:hover { background: rgba(250,254,239,0.03); border-color: rgba(250,254,239,0.15); }
+    .card-num {
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(199,255,29,0.6);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+    .card-title {
+      font-family: var(--font-condensed);
+      font-size: 28px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      line-height: 0.9;
+    }
+    .card-desc {
+      font-size: 10px;
+      font-weight: 300;
+      color: rgba(250,254,239,0.35);
+      letter-spacing: 0.08em;
+      line-height: 18px;
+      max-width: 280px;
+    }
+    .card-tag {
+      font-size: 9px;
+      font-weight: 400;
+      color: rgba(199,255,29,0.5);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">Exit.Wave — AI-DLC v2 / Homepage Exploration</div>
+  <h1>6<br/>DIRECTIONS</h1>
+  <div class="subtitle">Click a direction to view the running prototype</div>
+  <div class="grid">
+    <a class="card" href="/signal-lock.html">
+      <div class="card-num">001</div>
+      <div class="card-title">Signal Lock</div>
+      <div class="card-desc">Release-forward hub. Hero resolves from dithering static into cover art. Cursor warps the signal field.</div>
+      <div class="card-tag">Grain · Dither · Cinematic</div>
+    </a>
+    <a class="card" href="/dead-channel.html">
+      <div class="card-num">002</div>
+      <div class="card-title">Dead Channel</div>
+      <div class="card-desc">Maximal atmosphere. Full-bleed broadcasting noise. Content emerges from static on scroll. Cursor disturbs the field.</div>
+      <div class="card-tag">Dither · Phosphor · BESPOKE_3D</div>
+    </a>
+    <a class="card" href="/index-dir.html">
+      <div class="card-num">003</div>
+      <div class="card-title">Index</div>
+      <div class="card-desc">Transmission archive directory. Monospaced grid of releases, members, stems. Shader bleeds on hover.</div>
+      <div class="card-tag">Archive · Brutalist · Precision</div>
+    </a>
+    <a class="card" href="/collective.html">
+      <div class="card-num">004</div>
+      <div class="card-title">Collective</div>
+      <div class="card-desc">Members-forward editorial. Halftone portraits resolve on hover. Asymmetric magazine layout.</div>
+      <div class="card-tag">Editorial · Halftone · Warm</div>
+    </a>
+    <a class="card" href="/broadcast.html">
+      <div class="card-num">005</div>
+      <div class="card-title">Broadcast</div>
+      <div class="card-desc">Cinematic long-scroll. Mesh gradient morphs between section color worlds. Scroll-driven transitions.</div>
+      <div class="card-tag">Cinematic · Mesh · Scroll</div>
+    </a>
+    <a class="card" href="/mirrorball.html">
+      <div class="card-num">006</div>
+      <div class="card-title">Mirrorball</div>
+      <div class="card-desc">Goth-disco, motion-forward. Chrome liquid metal pulsing to tempo. Three.js corroded mirrorball. Cursor-reactive.</div>
+      <div class="card-tag">Chrome · Disco · BESPOKE_3D</div>
+    </a>
+  </div>
+</body>
+</html>
