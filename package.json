@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "dev": "vite"
+    "dev": "vite",
+    "sync-notion": "node scripts/sync-notion.js"
   },
   "dependencies": {
     "@chenglou/pretext": "^0.0.2",
@@ -13,7 +14,7 @@
     "@emotion/styled": "11.14.1",
     "@mui/icons-material": "7.3.5",
     "@mui/material": "7.3.5",
-    "@paper-design/shaders-react": "^0.0.72",
+    "@paper-design/shaders-react": "^0.0.76",
     "@popperjs/core": "2.11.8",
     "@radix-ui/react-accordion": "1.2.3",
     "@radix-ui/react-alert-dialog": "1.1.6",
@@ -71,6 +72,7 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@notionhq/client": "^5.22.0",
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
