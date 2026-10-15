@@ -38,7 +38,7 @@ export default function IlluminatedText({
 
   const lineHeightPx = fontSize * lineHeightMultiplier;
 
-  const colorValue = dropCapColor === 'signal' ? '#4fd1d1' : '#8b7fd4';
+  const colorValue = dropCapColor === 'signal' ? '#004df1' : '#397eff';
   const dropCapFontSize = Math.round(lineHeightPx * dropCapLines);
 
   const runLayout = useCallback(() => {
@@ -127,7 +127,7 @@ export default function IlluminatedText({
             fontFamily: "'field-gothic-wide', sans-serif",
             fontSize,
             lineHeight: lineHeightMultiplier,
-            color: '#e8e4d9',
+            color: '#e6e6e6',
           }}
         >
           {lines.map((line, i) => {
@@ -166,7 +166,7 @@ export default function IlluminatedText({
             fontFamily: "'field-gothic-wide', sans-serif",
             fontSize,
             lineHeight: lineHeightMultiplier,
-            color: '#e8e4d9',
+            color: '#e6e6e6',
             letterSpacing: '0.03em',
           }}
         >

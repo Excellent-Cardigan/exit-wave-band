@@ -5,7 +5,11 @@
  * Fonts in kit:
  *   - Field Gothic (Commercial Type) — condensed grotesque
  *   - Ohno Fatface (OH no Type Co) — heavy display
+ *   - Ohno Blazeface (OH no Type Co) — rounded display, used for hero title
  *   - Tchig Mono — monospace UI
+ *
+ * NOTE: If hero title renders as serif fallback, add Ohno Blazeface
+ * to the Adobe Fonts kit at fonts.adobe.com → My Kits → emu5gzu
  */
 
 @import url('https://use.typekit.net/emu5gzu.css');

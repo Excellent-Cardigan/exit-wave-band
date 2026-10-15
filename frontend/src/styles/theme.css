@@ -39,6 +39,7 @@
 
   /* Typography — Adobe Fonts kit emu5gzu */
   --font-display: 'ohno-fatface', serif;
+  --font-blaze: 'ohno-blazeface', serif; /* Hero title — Ohno Blazeface 24 Point */
   --font-blackletter: 'ohno-fatface', serif;
   --font-condensed: 'field-gothic', sans-serif;
   --font-squished: 'ohno-fatface-squished', serif;

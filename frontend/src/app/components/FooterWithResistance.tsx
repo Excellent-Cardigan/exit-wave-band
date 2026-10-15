@@ -3,78 +3,86 @@ import { useNavigate } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import Footer from './Footer';
 
+const KONAMI = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+
 export default function FooterWithResistance() {
   const navigate = useNavigate();
-  const footerRef = useRef<HTMLDivElement>(null);
   const [scrollResistance, setScrollResistance] = useState(0);
   const [showHint, setShowHint] = useState(false);
+  const resistanceAccumulator = useRef(0);
+  const lastScrollY = useRef(window.scrollY);
+  const konamiProgress = useRef(0);
 
+  // Konami code listener
   useEffect(() => {
-    let resistanceAccumulator = 0;
-    let lastScrollY = window.scrollY;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === KONAMI[konamiProgress.current]) {
+        konamiProgress.current += 1;
+        if (konamiProgress.current === KONAMI.length) {
+          konamiProgress.current = 0;
+          navigate('/terminal');
+        }
+      } else {
+        konamiProgress.current = e.key === KONAMI[0] ? 1 : 0;
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [navigate]);
 
+  // Scroll resistance listener
+  useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       const currentScrollY = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      
-      // Check if we're at the bottom and trying to scroll down
+
       if (currentScrollY >= maxScroll - 5 && e.deltaY > 0) {
         e.preventDefault();
-        
-        resistanceAccumulator += e.deltaY;
-        const resistancePercent = Math.min(resistanceAccumulator / 10, 100);
+
+        resistanceAccumulator.current += e.deltaY;
+        const resistancePercent = Math.min(resistanceAccumulator.current / 10, 100);
         setScrollResistance(resistancePercent);
 
-        // Show hint after some resistance
-        if (resistancePercent > 20 && !showHint) {
-          setShowHint(true);
-        }
+        if (resistancePercent > 20) setShowHint(true);
 
-        // Navigate to terminal after enough resistance
-        if (resistanceAccumulator > 500) {
+        if (resistanceAccumulator.current > 500) {
           navigate('/terminal');
-          resistanceAccumulator = 0;
+          resistanceAccumulator.current = 0;
           setScrollResistance(0);
           setShowHint(false);
         }
       } else {
-        // Reset if scrolling up or not at bottom
-        if (resistanceAccumulator > 0) {
-          resistanceAccumulator = Math.max(0, resistanceAccumulator - 50);
-          setScrollResistance(Math.min(resistanceAccumulator / 10, 100));
-          if (resistanceAccumulator === 0) {
-            setShowHint(false);
-          }
+        if (resistanceAccumulator.current > 0) {
+          resistanceAccumulator.current = Math.max(0, resistanceAccumulator.current - 50);
+          setScrollResistance(Math.min(resistanceAccumulator.current / 10, 100));
+          if (resistanceAccumulator.current === 0) setShowHint(false);
         }
       }
 
-      lastScrollY = currentScrollY;
+      lastScrollY.current = currentScrollY;
     };
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      
-      // Reset resistance if scrolling up
-      if (currentScrollY < lastScrollY && scrollResistance > 0) {
+      if (currentScrollY < lastScrollY.current && resistanceAccumulator.current > 0) {
+        resistanceAccumulator.current = 0;
         setScrollResistance(0);
         setShowHint(false);
       }
-      
-      lastScrollY = currentScrollY;
+      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('scroll', handleScroll);
-    
+
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('scroll', handleScroll);
     };
-  }, [navigate, scrollResistance, showHint]);
+  }, [navigate]);
 
   return (
-    <div ref={footerRef} className="relative">
+    <div className="relative">
       {/* Scroll resistance indicator */}
       <AnimatePresence>
         {scrollResistance > 0 && (

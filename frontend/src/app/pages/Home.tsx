@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
+import { GodRays } from '@paper-design/shaders-react';
 import { Link } from 'react-router';
 import { motion, AnimatePresence } from 'motion/react';
 import { Play, Pause } from 'lucide-react';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
-import TrackCard from '../components/TrackCard';
+
 import { useKirbyData } from '../hooks/useKirbyData';
 import { useAudio } from '../context/AudioContext';
 import type { KirbyTrack } from '../types/kirby';
@@ -151,7 +152,7 @@ function TrackRow({ track, index, isHovered, onHover, onPlay, isCurrentlyPlaying
 // ---------------------------------------------------------------------------
 export default function Home() {
   const { data: tracks, loading: tracksLoading } = useKirbyData<KirbyTrack[]>('tracks.json');
-  const { currentTrack, isPlaying, togglePlay } = useAudio();
+  const { currentTrack, isPlaying, togglePlay, progress } = useAudio();
 
   const [scrolled, setScrolled] = useState(false);
   const [hoveredTrack, setHoveredTrack] = useState<number | null>(null);
@@ -219,77 +220,156 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="flex-1">
-        {/* Hero — Featured Track with Background Cards */}
-        <section className="relative py-16 px-8 overflow-hidden">
-          {/* Masonry grid background — desktop only */}
-          {!tracksLoading && kirbyTracks.length > 0 && (
-            <div className="absolute inset-0 -mx-32 hidden sm:grid grid-cols-6 gap-0">
-              {[...Array(3)].map((_, rowIndex) =>
-                kirbyTracks.map((track, trackIndex) => (
-                  <motion.div
-                    key={`${rowIndex}-${trackIndex}`}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 0.05, scale: 1 }}
-                    transition={{
-                      duration: 0.8,
-                      delay: (rowIndex * kirbyTracks.length + trackIndex) * 0.05,
-                    }}
-                    className={trackIndex % 3 === 0 ? 'col-span-2' : 'col-span-1'}
-                  >
-                    <div className="overflow-hidden h-full">
-                      <img
-                        src={track.image}
-                        alt={track.title}
-                        className="w-full h-full object-cover"
-                        style={{ filter: 'saturate(0.3) contrast(1.1) brightness(0.6)' }}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                    </div>
-                  </motion.div>
-                ))
-              )}
-            </div>
+        {/* Hero — Cinematic full-bleed */}
+        <section className="relative overflow-hidden" style={{ minHeight: '100svh', background: '#010313' }}>
+          {/* God Rays shader */}
+          <GodRays
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
+            width={1280}
+            height={720}
+            colors={['#004cf0', '#387eff', '#0042db', '#01031347']}
+            colorBack="#010313"
+            colorBloom="#004cf0"
+            bloom={1}
+            intensity={0.68}
+            density={0.16}
+            spotty={1}
+            midSize={0.24}
+            midIntensity={0.32}
+            speed={0.24}
+            scale={2}
+            offsetY={-0.75}
+          />
+          {/* Key light — blue, upper left */}
+          <div style={{
+            position: 'absolute', top: -180, left: -60,
+            width: 900, height: 900,
+            background: 'radial-gradient(ellipse, rgba(0,77,241,0.22) 0%, rgba(0,40,180,0.08) 45%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+          {/* Fill light — right side */}
+          <div style={{
+            position: 'absolute', top: 0, right: -100,
+            width: 500, height: '100%',
+            background: 'radial-gradient(ellipse 60% 80% at 100% 40%, rgba(0,30,120,0.1) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+          {/* Bottom fade */}
+          <div style={{
+            position: 'absolute', bottom: 0, left: 0, right: 0, height: 420,
+            background: 'linear-gradient(to top, #010313 0%, rgba(1,3,19,0.92) 40%, rgba(1,3,19,0.5) 70%, transparent 100%)',
+            pointerEvents: 'none',
+          }} />
+
+          {/* Edition label — desktop only, centered */}
+          <div className="hidden sm:block" style={{ position: 'absolute', top: 36, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
+            <span className="text-mono" style={{ fontSize: 8, letterSpacing: '0.35em', color: 'rgba(0,77,241,0.35)' }}>
+              SIGNAL HARVEST · VOL. I · MMXXVI
+            </span>
+          </div>
+
+          {/* Track info — desktop, bottom left */}
+          {featuredTrack && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.2 }}
+              className="hidden sm:flex"
+              style={{ position: 'absolute', bottom: 44, left: 52, flexDirection: 'column', gap: 12 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <span className="text-mono" style={{ fontSize: 8, letterSpacing: '0.25em', color: 'rgba(0,77,241,0.6)' }}>◆ EXIT.WAVE</span>
+                <div style={{ width: 32, height: 1, background: 'rgba(0,77,241,0.3)' }} />
+                <span className="text-mono" style={{ fontSize: 8, letterSpacing: '0.18em', color: 'rgba(230,230,230,0.2)' }}>{featuredTrack.album.toUpperCase()}</span>
+              </div>
+              <div>
+                <div style={{ fontFamily: 'var(--font-blaze)', fontWeight: 500, fontSize: 108, lineHeight: '85%', letterSpacing: '-0.015em', color: '#e6e6e6' }}>
+                  {featuredTrack.title.split(' ')[0]}
+                </div>
+                {featuredTrack.title.split(' ').slice(1).join(' ') && (
+                  <div style={{ fontFamily: 'var(--font-blaze)', fontWeight: 500, fontSize: 108, lineHeight: '85%', letterSpacing: '-0.015em', color: '#004df1' }}>
+                    {featuredTrack.title.split(' ').slice(1).join(' ')}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 20, paddingTop: 2 }}>
+                <span className="text-mono" style={{ fontSize: 10, letterSpacing: '0.08em', color: 'rgba(230,230,230,0.35)' }}>{featuredTrack.duration}</span>
+                <div style={{ width: 1, height: 10, background: 'rgba(0,77,241,0.25)' }} />
+                <span className="text-mono" style={{ fontSize: 9, letterSpacing: '0.15em', color: 'rgba(0,77,241,0.5)' }}>{featuredTrack.bpm} BPM</span>
+                <div style={{ width: 1, height: 10, background: 'rgba(0,77,241,0.25)' }} />
+                <span className="text-mono" style={{ fontSize: 9, letterSpacing: '0.18em', color: 'rgba(230,230,230,0.18)', textTransform: 'uppercase' }}>{featuredTrack.status}</span>
+              </div>
+            </motion.div>
           )}
 
-          {/* Gradient fade at bottom */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none z-10"
-            style={{ background: 'linear-gradient(to top, #010313, transparent)' }}
-          />
-
-          {/* Featured card */}
-          <div className="relative z-20 container mx-auto max-w-7xl flex items-center justify-center min-h-[400px] sm:min-h-[600px]">
-            {tracksLoading ? (
-              <div className="w-full max-w-2xl">
-                <motion.div
-                  animate={{ opacity: [0.2, 0.4, 0.2] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  style={{
-                    aspectRatio: '3/4',
-                    background: 'rgba(0,77,241,0.04)',
-                    border: '1px solid rgba(0,77,241,0.15)',
-                  }}
-                />
+          {/* Play button — desktop, bottom right */}
+          {featuredTrack && (
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              onClick={() => togglePlay(featuredTrack, kirbyTracks)}
+              className="hidden sm:flex"
+              style={{ position: 'absolute', bottom: 52, right: 60, flexDirection: 'column', alignItems: 'center', gap: 10, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+            >
+              <div style={{ width: 72, height: 72, borderRadius: '50%', background: '#004df1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {isPlaying && currentTrack?.id === featuredTrack.id
+                  ? <Pause size={22} color="#010313" />
+                  : <Play size={22} color="#010313" />}
               </div>
-            ) : featuredTrack ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-                className="w-full max-w-2xl"
-              >
-                <TrackCard
-                  title={featuredTrack.title}
-                  album={featuredTrack.album}
-                  duration={featuredTrack.duration}
-                  image={featuredTrack.image}
-                  bpm={featuredTrack.bpm}
-                  isPlaying={isPlaying && currentTrack?.id === featuredTrack.id}
-                  onPlayPause={() => togglePlay(featuredTrack, kirbyTracks)}
-                />
-              </motion.div>
-            ) : null}
+              <span className="text-mono" style={{ fontSize: 7, letterSpacing: '0.25em', color: 'rgba(0,77,241,0.4)' }}>
+                {isPlaying && currentTrack?.id === featuredTrack.id ? 'PAUSE' : 'PLAY'}
+              </span>
+            </motion.button>
+          )}
+
+          {/* Mobile layout — track info + play, bottom */}
+          {featuredTrack && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, delay: 0.2 }}
+              className="flex sm:hidden"
+              style={{ position: 'absolute', bottom: 40, left: 24, right: 24, flexDirection: 'column', gap: 10 }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, justifyContent: 'center' }}>
+                <span className="text-mono" style={{ fontSize: 7, letterSpacing: '0.25em', color: 'rgba(0,77,241,0.6)' }}>◆ EXIT.WAVE</span>
+                <div style={{ width: 24, height: 1, background: 'rgba(0,77,241,0.3)' }} />
+                <span className="text-mono" style={{ fontSize: 7, letterSpacing: '0.15em', color: 'rgba(230,230,230,0.2)' }}>{featuredTrack.album.toUpperCase()}</span>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-blaze)', fontWeight: 500, fontSize: 72, lineHeight: '85%', letterSpacing: '-0.015em', color: '#e6e6e6' }}>
+                  {featuredTrack.title.split(' ')[0]}
+                </div>
+                {featuredTrack.title.split(' ').slice(1).join(' ') && (
+                  <div style={{ fontFamily: 'var(--font-blaze)', fontWeight: 500, fontSize: 72, lineHeight: '85%', letterSpacing: '-0.015em', color: '#004df1' }}>
+                    {featuredTrack.title.split(' ').slice(1).join(' ')}
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, paddingTop: 4 }}>
+                <span className="text-mono" style={{ fontSize: 9, letterSpacing: '0.08em', color: 'rgba(230,230,230,0.3)' }}>{featuredTrack.duration}</span>
+                <div style={{ width: 1, height: 9, background: 'rgba(0,77,241,0.25)' }} />
+                <span className="text-mono" style={{ fontSize: 8, letterSpacing: '0.15em', color: 'rgba(0,77,241,0.5)' }}>{featuredTrack.bpm} BPM</span>
+                <button
+                  onClick={() => togglePlay(featuredTrack, kirbyTracks)}
+                  style={{ width: 52, height: 52, borderRadius: '50%', background: '#004df1', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                >
+                  {isPlaying && currentTrack?.id === featuredTrack.id
+                    ? <Pause size={16} color="#010313" />
+                    : <Play size={16} color="#010313" />}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Progress bar */}
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'rgba(0,77,241,0.1)' }}>
+            <motion.div
+              style={{ height: '100%', background: '#004df1' }}
+              animate={{ width: `${progress * 100}%` }}
+              transition={{ duration: 0.25, ease: 'linear' }}
+            />
           </div>
         </section>
 

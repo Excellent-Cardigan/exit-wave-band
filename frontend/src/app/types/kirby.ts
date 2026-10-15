@@ -44,9 +44,12 @@ export interface KirbyAlbum {
 /** Shape returned by /cms/dispatches.json */
 export interface KirbyDispatch {
   id: string;
+  slug: string;
   title: string;
-  date: string;       // ISO date string: "2026-03-29"
+  date: string;          // ISO date string: "2020-03-17"
+  transmissionId: string; // e.g. "TX-001"
+  excerpt: string;
+  body: string;          // raw text, paragraphs separated by \n\n
   author: string;
-  body: string;       // HTML from Kirby's kirbytext parser
   coverImage: string;
 }

@@ -3,7 +3,8 @@ import { Link } from 'react-router';
 import Navigation from '../components/Navigation';
 import FooterWithResistance from '../components/FooterWithResistance';
 import IlluminatedText from '../components/IlluminatedText';
-import { transmissions } from '../data/transmissions';
+import { useKirbyData } from '../hooks/useKirbyData';
+import type { KirbyDispatch } from '../types/kirby';
 
 function formatDate(iso: string) {
   const d = new Date(iso + 'T00:00:00');
@@ -11,8 +12,10 @@ function formatDate(iso: string) {
 }
 
 export default function Dispatches() {
+  const { data, loading } = useKirbyData<KirbyDispatch[]>('dispatches.json');
+  const dispatches = data ?? [];
   return (
-    <div className="min-h-screen bg-[#07070d] text-[#e8e4d9]">
+    <div className="min-h-screen text-[#e6e6e6]" style={{ background: '#010313' }}>
       <Navigation />
 
       <div className="container mx-auto px-4 sm:px-8 py-24 max-w-3xl">
@@ -23,12 +26,12 @@ export default function Dispatches() {
           transition={{ duration: 0.8 }}
           className="mb-16"
         >
-          <h1 className="text-mono text-3xl tracking-wider text-[#4fd1d1] mb-3">
+          <h1 className="text-mono text-3xl tracking-wider text-[#004df1] glow-signal mb-3">
             DISPATCHES
           </h1>
           <div className="flex items-center gap-3">
-            <div className="w-24 h-px bg-[#4fd1d1]" style={{ boxShadow: '0 0 8px #4fd1d1' }} />
-            <span className="text-mono text-xs text-[#e8e4d9]/40 tracking-widest">
+            <div className="w-24 h-px bg-[#004df1]" style={{ boxShadow: '0 0 8px #004df1' }} />
+            <span className="text-mono text-xs text-[#e6e6e6]/40 tracking-widest">
               FIELD TRANSMISSIONS FROM THE ORDER
             </span>
           </div>
@@ -36,23 +39,35 @@ export default function Dispatches() {
 
         {/* Transmission list */}
         <div className="space-y-16">
-          {transmissions.map((t, i) => (
+          {loading && (
+            <div className="space-y-16">
+              {[1, 2, 3].map(n => (
+                <motion.div
+                  key={n}
+                  animate={{ opacity: [0.15, 0.3, 0.15] }}
+                  transition={{ duration: 1.5, repeat: Infinity, delay: n * 0.2 }}
+                  className="border-t border-[#004df1]/20 pt-10 h-40"
+                />
+              ))}
+            </div>
+          )}
+          {dispatches.map((t, i) => (
             <motion.article
               key={t.id}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 30, delay: i * 0.12 }}
-              className="border-t border-[#4fd1d1]/20 pt-10"
+              className="border-t border-[#004df1]/20 pt-10"
             >
               {/* Transmission ID + date */}
-              <div className="flex items-center gap-4 mb-4 text-mono text-xs tracking-widest text-[#e8e4d9]/40">
-                <span className="text-[#4fd1d1]/60">{t.transmissionId}</span>
+              <div className="flex items-center gap-4 mb-4 text-mono text-xs tracking-widest text-[#e6e6e6]/40">
+                <span className="text-[#397eff]">{t.transmissionId}</span>
                 <span>·</span>
                 <span>{formatDate(t.date)}</span>
               </div>
 
               {/* Title */}
-              <h2 className="text-blackletter text-3xl text-[#e8e4d9] mb-6 leading-tight">
+              <h2 className="text-display text-3xl text-[#e6e6e6] mb-6 leading-tight">
                 {t.title}
               </h2>
 
@@ -70,7 +85,7 @@ export default function Dispatches() {
               {/* Read link */}
               <Link
                 to={`/dispatches/${t.slug}`}
-                className="text-mono text-xs tracking-widest text-[#4fd1d1] hover:text-[#e8e4d9] transition-colors group inline-flex items-center gap-2"
+                className="text-mono text-xs tracking-widest text-[#397eff] hover:text-[#e6e6e6] transition-colors group inline-flex items-center gap-2"
               >
                 READ TRANSMISSION
                 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
@@ -84,9 +99,9 @@ export default function Dispatches() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 1 }}
-          className="mt-24 pt-12 border-t border-[#4fd1d1]/10 text-center"
+          className="mt-24 pt-12 border-t border-[#004df1]/10 text-center"
         >
-          <p className="text-serif text-sm text-[#e8e4d9]/30 italic tracking-wide">
+          <p className="text-mono text-sm text-[#e6e6e6]/30 italic tracking-wide">
             "like a signal in the static"
           </p>
         </motion.div>

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
 import { motion } from 'motion/react';
-import Footer from '../components/Footer';
+
 
 interface GameState {
   currentRoom: string;
@@ -178,7 +178,7 @@ export default function Terminal() {
   };
 
   return (
-    <div className="min-h-screen text-[#4fd1d1] flex flex-col" style={{ background: '#010313' }}>
+    <div className="min-h-screen text-[#e6e6e6] flex flex-col" style={{ background: '#010313' }}>
       {/* Terminal Content */}
       <div className="flex-1 container mx-auto max-w-4xl px-8 py-16">
         {/* Terminal Header */}
@@ -186,12 +186,12 @@ export default function Terminal() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="mb-8 pb-4 border-b border-[#4fd1d1]/30"
+          className="mb-8 pb-4 border-b border-[#397eff]/30"
         >
-          <div className="text-mono text-sm text-[#4fd1d1]/70">
+          <div className="text-mono text-sm text-[#e6e6e6]/70">
             █ SECRET TERMINAL ACCESSED
           </div>
-          <div className="text-mono text-xs text-[#4fd1d1]/50 mt-1">
+          <div className="text-mono text-xs text-[#e6e6e6]/50 mt-1">
             Connection established to EXIT.WAVE internal systems
           </div>
         </motion.div>
@@ -204,12 +204,12 @@ export default function Terminal() {
           className="mb-6 space-y-1 text-mono text-sm"
         >
           {history.map((entry, index) => (
-            <div 
+            <div
               key={index}
               className={
-                entry.type === 'input' 
-                  ? 'text-[#8b7fd4]' 
-                  : 'text-[#4fd1d1]/90'
+                entry.type === 'input'
+                  ? 'text-[#e6e6e6]/60'
+                  : 'text-[#e6e6e6]'
               }
             >
               {entry.text}
@@ -220,33 +220,26 @@ export default function Terminal() {
 
         {/* Terminal Input */}
         <form onSubmit={handleSubmit} className="flex items-center gap-2 sticky bottom-8">
-          <span className="text-mono text-sm text-[#8b7fd4]">{'>'}</span>
+          <span className="text-mono text-sm text-[#397eff]">{'>'}</span>
           <input
             ref={inputRef}
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-mono text-sm text-[#4fd1d1] caret-[#4fd1d1]"
+            className="flex-1 bg-transparent border-none outline-none text-mono text-sm text-[#e6e6e6] caret-[#397eff]"
             spellCheck={false}
             autoComplete="off"
           />
           <motion.span
             animate={{ opacity: [1, 0, 1] }}
             transition={{ duration: 1, repeat: Infinity }}
-            className="text-[#4fd1d1]"
+            className="text-[#397eff]"
           >
             █
           </motion.span>
         </form>
 
-        {/* Help hint */}
-        <div className="mt-8 text-mono text-xs text-[#4fd1d1]/40">
-          Hint: You are in a text adventure. Try examining your surroundings.
-        </div>
       </div>
-
-      {/* Footer */}
-      <Footer />
     </div>
   );
 }

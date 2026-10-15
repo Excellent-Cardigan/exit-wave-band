@@ -8,6 +8,7 @@ import Terminal from "./pages/Terminal";
 import Layout from "./components/Layout";
 import Dispatches from "./pages/Dispatches";
 import DispatchDetail from "./pages/DispatchDetail";
+import Archive from "./pages/Archive";
 
 export const router = createBrowserRouter([
   {
@@ -17,6 +18,7 @@ export const router = createBrowserRouter([
       { path: "/entry", Component: Entry },
       { path: "/signal", Component: Signal },
       { path: "/coven", Component: Coven },
+      { path: "/archive", Component: Archive },
       { path: "/ritual", Component: Ritual },
       { path: "/terminal", Component: Terminal },
       { path: "/dispatches", Component: Dispatches },
