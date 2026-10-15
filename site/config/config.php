@@ -111,12 +111,15 @@ return [
                 foreach (page('dispatches')->children()->listed()->sortBy('date', 'desc') as $post) {
                     $coverFile = $post->files()->template('cover')->first();
                     $items[]   = [
-                        'id'         => $post->slug(),
-                        'title'      => $post->title()->value(),
-                        'date'       => $post->date()->toDate('Y-m-d'),
-                        'author'     => $post->author()->or('exit.wave')->value(),
-                        'body'       => $post->body()->kirbytext()->value(),
-                        'coverImage' => $coverFile ? $coverFile->url() : '',
+                        'id'             => $post->slug(),
+                        'slug'           => $post->slug(),
+                        'title'          => $post->title()->value(),
+                        'date'           => $post->date()->toDate('Y-m-d'),
+                        'transmissionId' => $post->transmission_id()->value(),
+                        'excerpt'        => $post->excerpt()->value(),
+                        'body'           => $post->body()->value(),
+                        'author'         => $post->author()->or('exit.wave')->value(),
+                        'coverImage'     => $coverFile ? $coverFile->url() : '',
                     ];
                 }
                 return Response::json($items);

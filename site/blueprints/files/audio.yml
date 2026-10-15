@@ -5,3 +5,10 @@ accept:
   - audio/ogg
   - audio/aac
   - audio/mp4
+
+fields:
+  label:
+    label: Label
+    type: text
+    placeholder: "e.g. Master, Demo, Instrumental"
+    help: Optional — distinguishes versions if multiple files are attached

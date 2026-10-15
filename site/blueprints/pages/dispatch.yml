@@ -22,11 +22,23 @@ tabs:
         default: exit.wave
         help: "Use circle name for member-authored posts (e.g. PURITY)"
 
+      transmission_id:
+        label: Transmission ID
+        type: text
+        help: "Lore identifier — e.g. TX-001"
+        placeholder: TX-001
+
+      excerpt:
+        label: Excerpt
+        type: textarea
+        size: medium
+        help: Short summary shown on the dispatches listing page
+
       body:
         label: Body
         type: textarea
         size: large
-        help: Markdown supported
+        help: Full text — paragraphs separated by blank lines
 
   cover:
     label: Cover Image
