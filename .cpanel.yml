@@ -1,4 +1,12 @@
 ---
 deployment:
   tasks:
+    # React app
     - /bin/cp -R dist/. /home/exitrgsu/public_html/
+    # Kirby site code → /cms. Only code is copied: content, media, panel accounts
+    # and the Kirby core already on the server are never touched.
+    - /bin/mkdir -p /home/exitrgsu/public_html/cms/site
+    - /bin/cp -R site/blueprints site/templates site/snippets site/emails site/config /home/exitrgsu/public_html/cms/site/
+    - /bin/cp site/.license /home/exitrgsu/public_html/cms/site/.license
+    - /bin/cp index.php /home/exitrgsu/public_html/cms/index.php
+    - /bin/cp deploy/cms.htaccess /home/exitrgsu/public_html/cms/.htaccess

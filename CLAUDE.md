@@ -33,8 +33,11 @@ Two separate servers — always run both:
 
 - **Host:** cPanel at exitwave.band
 - **Method:** cPanel Git Version Control → Deploy HEAD Commit
-- **`dist/` is committed to git** — build output lives in the repo so cPanel copies files directly
-- `.cpanel.yml` copies `dist/` to `/home/exitrgsu/public_html/`
+- **`dist/` is committed to git** — build output lives in the repo so cPanel copies files directly. It holds only the React app.
+- `.cpanel.yml` copies `dist/` to `/home/exitrgsu/public_html/`, then copies Kirby's site code (`site/blueprints`, `templates`, `snippets`, `emails`, `config`, `.license`), `index.php` and `deploy/cms.htaccess` to `public_html/cms/`
+- Live content, media and panel accounts exist only on the server (edited in the live panel at `exitwave.band/cms/panel`) and are never deployed
+- The Kirby core (`kirby/`) is Composer-installed locally and not in git; the server keeps its own copy at `public_html/cms/kirby/`. Upgrading Kirby on the server is a separate manual upload.
+- Copies don't delete: a blueprint or template removed from the repo stays on the server until removed there by hand
 - Workflow: `npm run build` → commit `dist/` → push → deploy in cPanel panel
 
 ## Architecture

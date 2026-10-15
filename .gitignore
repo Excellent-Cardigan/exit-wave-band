@@ -50,3 +50,6 @@ dist/cms/content/
 /site/sessions/
 /site/storage/
 public/.rnd
+
+# OpenSSL random-seed file, accidentally created in public/; never ship it
+.rnd
